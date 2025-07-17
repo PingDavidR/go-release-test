@@ -1,0 +1,273 @@
+name: PR Changelog Check
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened, labeled, unlabeled, closed]
+    branches: [ main ]
+
+jobs:
+  check-changelog:
+    # Don't run this job on closed PRs
+    if: github.event.action != 'closed'
+    name: Check Changelog Entry
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Check for existing changelog entry
+        id: check-changelog
+        run: |
+          PR_NUMBER=${{ github.event.pull_request.number }}
+          CHANGELOG_FILE=".changelog/pr-${PR_NUMBER}.txt"
+          
+          if [ -f "$CHANGELOG_FILE" ]; then
+            echo "Changelog entry already exists: $CHANGELOG_FILE"
+            echo "has_changelog=true" >> $GITHUB_OUTPUT
+          else
+            echo "No changelog entry found"
+            echo "has_changelog=false" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Check for skip-changelog label
+        id: check-label
+        run: |
+          if [[ "${{ contains(github.event.pull_request.labels.*.name, 'skip-changelog') }}" == "true" ]]; then
+            echo "PR has skip-changelog label"
+            echo "skip_changelog=true" >> $GITHUB_OUTPUT
+          else
+            echo "PR does not have skip-changelog label"
+            echo "skip_changelog=false" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Create changelog comment
+        if: steps.check-changelog.outputs.has_changelog == 'false' && steps.check-label.outputs.skip_changelog == 'false'
+        uses: actions/github-script@v6
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const prNumber = context.issue.number;
+            const owner = context.repo.owner;
+            const repo = context.repo.repo;
+            
+            // Check if we've already commented about changelog
+            const { data: comments } = await github.rest.issues.listComments({
+              owner,
+              repo,
+              issue_number: prNumber,
+            });
+            
+            const changelogComment = comments.find(comment => 
+              comment.body.includes('## Changelog Entry Required')
+            );
+            
+            if (!changelogComment) {
+              const body = [
+                '## Changelog Entry Required',
+                '',
+                'This PR requires a changelog entry. Please create a file in the `.changelog` directory with the following naming convention:',
+                '',
+                '`.changelog/pr-' + prNumber + '.txt`',
+                '',
+                'The file should contain one or more changelog entries in the following format:',
+                '',
+                '```',
+                'release-note:type',
+                'Description of your change',
+                '```',
+                '',
+                'Where `type` can be one of:',
+                '- `breaking-change` - Breaking changes that require user action',
+                '- `feature` - New features',
+                '- `enhancement` - Enhancements to existing functionality',
+                '- `bug` - Bug fixes',
+                '- `note` - General notes about the release',
+                '- `security` - Security-related changes',
+                '- `deprecation` - Deprecated features or functionality',
+                '',
+                'Example:',
+                '',
+                '```',
+                'release-note:feature',
+                'Added new calculator function `Multiply` that allows multiplication of two numbers.',
+                '```',
+                '',
+                '```',
+                'release-note:bug',
+                'Fixed issue where division by zero would cause the application to crash instead of returning an error.',
+                '```',
+                '',
+                'If this PR doesn\'t need a changelog entry, please add the `skip-changelog` label.'
+              ].join('\n');
+              
+              await github.rest.issues.createComment({
+                owner,
+                repo,
+                issue_number: prNumber,
+                body
+              });
+            }
+
+  # This job only runs when a PR is merged
+  auto-changelog:
+    name: Auto-Generate Changelog
+    runs-on: ubuntu-latest
+    # Only run on PR close (merge)
+    if: github.event.action == 'closed' && github.event.pull_request.merged == true
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Check for skip-changelog label
+        id: check-label
+        run: |
+          if [[ "${{ contains(github.event.pull_request.labels.*.name, 'skip-changelog') }}" == "true" ]]; then
+            echo "PR has skip-changelog label"
+            echo "skip_changelog=true" >> $GITHUB_OUTPUT
+          else
+            echo "PR does not have skip-changelog label"
+            echo "skip_changelog=false" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Check for existing changelog entry
+        id: check-changelog
+        run: |
+          PR_NUMBER=${{ github.event.pull_request.number }}
+          CHANGELOG_FILE=".changelog/pr-${PR_NUMBER}.txt"
+          
+          if [ -f "$CHANGELOG_FILE" ]; then
+            echo "Changelog entry exists: $CHANGELOG_FILE"
+            echo "has_changelog=true" >> $GITHUB_OUTPUT
+          else
+            echo "No changelog entry found"
+            echo "has_changelog=false" >> $GITHUB_OUTPUT
+          fi
+      
+      - name: Generate changelog from PR description
+        if: steps.check-changelog.outputs.has_changelog == 'false' && steps.check-label.outputs.skip_changelog == 'false'
+        run: |
+          PR_NUMBER="${{ github.event.pull_request.number }}"
+          PR_TITLE="${{ github.event.pull_request.title }}"
+          PR_BODY="${{ github.event.pull_request.body }}"
+          CHANGELOG_FILE=".changelog/pr-${PR_NUMBER}.txt"
+          
+          # Create .changelog directory if it doesn't exist
+          mkdir -p .changelog
+          
+          # Determine the most appropriate changelog type based on PR title
+          CHANGE_TYPE="note"
+          
+          # Check for keywords in PR title to determine change type
+          if [[ "$PR_TITLE" =~ (fix|bug|issue|resolve) ]]; then
+            CHANGE_TYPE="bug"
+          elif [[ "$PR_TITLE" =~ (feature|add|implement) ]]; then
+            CHANGE_TYPE="feature"
+          elif [[ "$PR_TITLE" =~ (improve|enhance|refactor|update) ]]; then
+            CHANGE_TYPE="enhancement"
+          elif [[ "$PR_TITLE" =~ (security|secure|vulnerability) ]]; then
+            CHANGE_TYPE="security"
+          elif [[ "$PR_TITLE" =~ (deprecate|deprecation) ]]; then
+            CHANGE_TYPE="deprecation"
+          elif [[ "$PR_TITLE" =~ (break|breaking) ]]; then
+            CHANGE_TYPE="breaking-change"
+          fi
+          
+          # Create changelog entry from PR title
+          echo '```release-note:'$CHANGE_TYPE >> $CHANGELOG_FILE
+          echo "$PR_TITLE" >> $CHANGELOG_FILE
+          echo '```' >> $CHANGELOG_FILE
+          
+          echo "Generated changelog entry in $CHANGELOG_FILE"
+          cat $CHANGELOG_FILE
+          
+          # Configure git
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
+          
+          # Add, commit and push the changelog
+          git add $CHANGELOG_FILE
+          git commit -m "Add changelog entry for PR #$PR_NUMBER [skip ci]"
+          git push
+
+  generate-changelog:
+    name: Generate Changelog
+    runs-on: ubuntu-latest
+    # Only run on PR close (merge)
+    if: github.event.action == 'closed' && github.event.pull_request.merged == true
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Check for skip-changelog label
+        id: check-label
+        run: |
+          if [[ "${{ contains(github.event.pull_request.labels.*.name, 'skip-changelog') }}" == "true" ]]; then
+            echo "PR has skip-changelog label"
+            echo "skip_changelog=true" >> $GITHUB_OUTPUT
+          else
+            echo "PR does not have skip-changelog label"
+            echo "skip_changelog=false" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Check for existing changelog entry
+        id: check-changelog
+        run: |
+          PR_NUMBER=${{ github.event.pull_request.number }}
+          CHANGELOG_FILE=".changelog/pr-${PR_NUMBER}.txt"
+          
+          if [ -f "$CHANGELOG_FILE" ]; then
+            echo "Changelog entry exists: $CHANGELOG_FILE"
+            echo "has_changelog=true" >> $GITHUB_OUTPUT
+          else
+            echo "No changelog entry found"
+            echo "has_changelog=false" >> $GITHUB_OUTPUT
+          fi
+      
+      - name: Generate changelog from PR description
+        if: steps.check-changelog.outputs.has_changelog == 'false' && steps.check-label.outputs.skip_changelog == 'false'
+        run: |
+          PR_NUMBER=${{ github.event.pull_request.number }}
+          PR_TITLE="${{ github.event.pull_request.title }}"
+          PR_BODY="${{ github.event.pull_request.body }}"
+          CHANGELOG_FILE=".changelog/pr-${PR_NUMBER}.txt"
+          
+          # Create .changelog directory if it doesn't exist
+          mkdir -p .changelog
+          
+          # Determine the most appropriate changelog type based on PR title/labels
+          CHANGE_TYPE="note"
+          
+          # Check for keywords in PR title to determine change type
+          if [[ "$PR_TITLE" =~ (fix|bug|issue|resolve) ]]; then
+            CHANGE_TYPE="bug"
+          elif [[ "$PR_TITLE" =~ (feature|add|implement) ]]; then
+            CHANGE_TYPE="feature"
+          elif [[ "$PR_TITLE" =~ (improve|enhance|refactor|update) ]]; then
+            CHANGE_TYPE="enhancement"
+          elif [[ "$PR_TITLE" =~ (security|secure|vulnerability) ]]; then
+            CHANGE_TYPE="security"
+          elif [[ "$PR_TITLE" =~ (deprecate|deprecation) ]]; then
+            CHANGE_TYPE="deprecation"
+          elif [[ "$PR_TITLE" =~ (break|breaking) ]]; then
+            CHANGE_TYPE="breaking-change"
+          fi
+          
+          # Create changelog entry from PR title
+          echo '```release-note:'$CHANGE_TYPE >> $CHANGELOG_FILE
+          echo "$PR_TITLE" >> $CHANGELOG_FILE
+          echo '```' >> $CHANGELOG_FILE
+          
+          echo "Generated changelog entry in $CHANGELOG_FILE"
+          cat $CHANGELOG_FILE
+          
+          # Commit and push the changelog
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
+          git add $CHANGELOG_FILE
+          git commit -m "Add changelog entry for PR #$PR_NUMBER"
+          git push
