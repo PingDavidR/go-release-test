@@ -64,8 +64,17 @@ install: build
 
 # Format the code
 .PHONY: fmt
-fmt:
+fmt: fmt-go fmt-shell
+
+# Format Go code
+.PHONY: fmt-go
+fmt-go:
 	go fmt ./...
+
+# Format shell scripts
+.PHONY: fmt-shell
+fmt-shell:
+	./scripts/check-scripts.sh --fix
 
 # Vet the code
 .PHONY: vet
@@ -74,8 +83,34 @@ vet:
 
 # Lint the code
 .PHONY: lint
-lint:
+lint: lint-go lint-shell
+
+# Go linting
+.PHONY: lint-go
+lint-go:
 	golangci-lint run
+
+# Shell script linting
+.PHONY: lint-shell
+lint-shell:
+	./scripts/check-scripts.sh
+
+# Run security checks on Go code
+.PHONY: gosec
+gosec:
+	@command -v gosec >/dev/null 2>&1 || { echo "gosec not found. Installing..."; go install github.com/securego/gosec/v2/cmd/gosec@latest; }
+	gosec -quiet ./...
+
+# Run dependency vulnerability check
+.PHONY: govulncheck
+govulncheck:
+	@command -v govulncheck >/dev/null 2>&1 || { echo "govulncheck not found. Installing..."; go install golang.org/x/vuln/cmd/govulncheck@latest; }
+	govulncheck ./...
+
+# Developer check - run before submitting PR
+.PHONY: devcheck
+devcheck: fmt vet lint gosec govulncheck test
+	@echo "✅ All developer checks passed! Ready to submit PR."
 
 # Generate documentation
 .PHONY: docs

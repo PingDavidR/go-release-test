@@ -1,0 +1,11 @@
+```release-note:feature
+Added basic calculator functionality with Add, Subtract, Multiply, and Divide operations.
+```
+
+```release-note:enhancement
+Improved error handling for division by zero.
+```
+
+```release-note:note
+Updated Go module dependencies to latest versions.
+```

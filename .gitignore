@@ -64,5 +64,3 @@ ehthumbs.db
 # Log files
 *.log
 
-# GitHub Copilot instructions file
-.github/copilot-instructions.md

@@ -1,0 +1,60 @@
+name: Shell Script Linting
+
+on:
+  push:
+    branches: [ main ]
+    paths:
+      - '**.sh'
+      - '.github/workflows/shell-lint.yml'
+  pull_request:
+    branches: [ main ]
+    paths:
+      - '**.sh'
+      - '.github/workflows/shell-lint.yml'
+
+jobs:
+  shellcheck:
+    name: Shellcheck
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Install shellcheck
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y shellcheck
+
+      - name: Run shellcheck
+        run: |
+          # Find all shell scripts in the repository (files with .sh extension and files with shebang line)
+          SCRIPTS=$(find . -name "*.sh" -type f | sort)
+          SCRIPTS+=" $(find . -type f ! -path "*/\.*" ! -path "*/vendor/*" ! -path "*/node_modules/*" -perm +111 -exec grep -l '^\#\!/bin/bash\|^\#\!/usr/bin/env bash' {} \; 2>/dev/null | sort -u || true)"
+          
+          # Run shellcheck on all scripts
+          for script in $SCRIPTS; do
+            echo "Checking $script"
+            shellcheck -x "$script" || exit 1
+          done
+
+  shfmt:
+    name: Shfmt
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Install shfmt
+        run: |
+          go install mvdan.cc/sh/v3/cmd/shfmt@latest
+          export PATH=$PATH:$(go env GOPATH)/bin
+
+      - name: Run shfmt
+        run: |
+          # Find all shell scripts in the repository (files with .sh extension and files with shebang line)
+          SCRIPTS=$(find . -name "*.sh" -type f | sort)
+          SCRIPTS+=" $(find . -type f ! -path "*/\.*" ! -path "*/vendor/*" ! -path "*/node_modules/*" -perm +111 -exec grep -l '^\#\!/bin/bash\|^\#\!/usr/bin/env bash' {} \; 2>/dev/null | sort -u || true)"
+          
+          # Run shfmt on all scripts
+          for script in $SCRIPTS; do
+            echo "Checking $script"
+            shfmt -i 2 -ci -bn -s -d "$script" || exit 1
+          done
