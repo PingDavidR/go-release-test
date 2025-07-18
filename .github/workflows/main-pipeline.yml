@@ -39,9 +39,24 @@ jobs:
           if [ -f "$CHANGELOG_FILE" ]; then
             echo "Changelog file $CHANGELOG_FILE exists"
             echo "exists=true" >> $GITHUB_OUTPUT
+            
+            # Check if the description exceeds 95 characters
+            # Extract the description from between the triple backticks
+            DESCRIPTION=$(grep -v "^\`\`\`" "$CHANGELOG_FILE" | tr -d '\n')
+            CHAR_COUNT=${#DESCRIPTION}
+            
+            if [ $CHAR_COUNT -gt 95 ]; then
+              echo "::warning::Changelog description exceeds the 95-character limit ($CHAR_COUNT characters)."
+              echo "Please edit $CHANGELOG_FILE and shorten the description to 95 characters or less."
+              echo "description_too_long=true" >> $GITHUB_OUTPUT
+            else
+              echo "Changelog description is within the 95-character limit ($CHAR_COUNT characters)."
+              echo "description_too_long=false" >> $GITHUB_OUTPUT
+            fi
           else
             echo "Changelog file $CHANGELOG_FILE does not exist"
             echo "exists=false" >> $GITHUB_OUTPUT
+            echo "description_too_long=false" >> $GITHUB_OUTPUT
           fi
 
       - name: Create changelog entry if missing
@@ -58,22 +73,28 @@ jobs:
           # This is a simple heuristic and can be improved
           if [[ "$PR_TITLE" == *"fix"* || "$PR_TITLE" == *"Fix"* ]]; then
             CHANGE_TYPE="bug"
-            MESSAGE="Fixed issue from PR #${PR_NUMBER}: ${PR_TITLE}"
+            MESSAGE="Fixed issue: ${PR_TITLE}"
           elif [[ "$PR_TITLE" == *"feat"* || "$PR_TITLE" == *"Feat"* || "$PR_TITLE" == *"Add"* || "$PR_TITLE" == *"add"* ]]; then
             CHANGE_TYPE="feature"
-            MESSAGE="Added new feature from PR #${PR_NUMBER}: ${PR_TITLE}"
+            MESSAGE="Added feature: ${PR_TITLE}"
           elif [[ "$PR_TITLE" == *"break"* || "$PR_TITLE" == *"Break"* ]]; then
             CHANGE_TYPE="breaking-change"
-            MESSAGE="Breaking change from PR #${PR_NUMBER}: ${PR_TITLE}"
+            MESSAGE="Breaking change: ${PR_TITLE}"
           elif [[ "$PR_TITLE" == *"security"* || "$PR_TITLE" == *"Security"* ]]; then
             CHANGE_TYPE="security"
-            MESSAGE="Security improvement from PR #${PR_NUMBER}: ${PR_TITLE}"
+            MESSAGE="Security improvement: ${PR_TITLE}"
           elif [[ "$PR_TITLE" == *"deprecat"* || "$PR_TITLE" == *"Deprecat"* ]]; then
             CHANGE_TYPE="deprecation"
-            MESSAGE="Deprecation notice from PR #${PR_NUMBER}: ${PR_TITLE}"
+            MESSAGE="Deprecation: ${PR_TITLE}"
           else
             CHANGE_TYPE="enhancement"
-            MESSAGE="Enhancement from PR #${PR_NUMBER}: ${PR_TITLE}"
+            MESSAGE="Enhancement: ${PR_TITLE}"
+          fi
+          
+          # Truncate message to 95 characters if longer
+          if [ ${#MESSAGE} -gt 95 ]; then
+            MESSAGE="${MESSAGE:0:92}..."
+            echo "Message truncated to 95 characters"
           fi
           
           # Create the changelog file with template content
@@ -106,6 +127,8 @@ jobs:
                 ✅ I've automatically created a changelog entry for this PR in `.changelog/pr-${prNumber}.txt`.
                 
                 Please review and update the changelog entry if needed to better describe the changes in this PR. You can edit the file directly from GitHub or in your local repository.
+                
+                **Note:** The description in the changelog entry must be 95 characters or less. If your description is longer, it will be automatically truncated.
                 
                 The changelog entry is used to generate release notes when a new version is released.
             });

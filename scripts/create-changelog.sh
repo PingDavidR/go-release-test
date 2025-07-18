@@ -40,6 +40,13 @@ MESSAGE="$3"
 CHANGELOG_DIR=".changelog"
 CHANGELOG_FILE="${CHANGELOG_DIR}/pr-${PR_NUMBER}.txt"
 
+# Check if message exceeds 95 characters
+if [ ${#MESSAGE} -gt 95 ]; then
+  echo "Error: Message exceeds the 95-character limit (${#MESSAGE} characters)."
+  echo "Please shorten your message to 95 characters or less."
+  exit 1
+fi
+
 # Validate change type
 VALID_TYPES=("breaking-change" "feature" "enhancement" "bug" "note" "security" "deprecation")
 VALID=0

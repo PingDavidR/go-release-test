@@ -7,8 +7,9 @@ This directory contains changelog entries for changes made to the repository. Th
 1. When you create a PR, you should create a changelog file named `pr-{PR_NUMBER}.txt` in this directory.
 2. If you don't create one, GitHub Actions will automatically create one for you.
 3. The changelog file should follow the format shown in the examples below.
-4. During the release process, all changelog files are combined to generate release notes.
-5. After release, all changelog files are moved to the `archive/{version}` directory.
+4. The description in the changelog entry must be 95 characters or less.
+5. During the release process, all changelog files are combined to generate release notes.
+6. After release, all changelog files are moved to the `archive/{version}` directory.
 
 ## Creating a Changelog Entry
 
@@ -56,6 +57,10 @@ Changelog files use a specific format with sections marked by triple backticks a
 - `release-note:note` - General notes about the release
 - `release-note:security` - Security-related changes
 - `release-note:deprecation` - Deprecated features or functionality
+
+### Character Limit
+
+The description text in each changelog entry must be 95 characters or less. This limit ensures that release notes are concise and readable. If your description exceeds this limit, you'll need to shorten it.
 
 ## Example
 
