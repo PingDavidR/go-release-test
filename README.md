@@ -13,7 +13,7 @@ This repository is designed for testing Go release processes. It serves as a san
 
 ```plaintext
 .
-├── cmd/gorelease/       # Main application entry point
+├── cmd/mathreleaser/    # Main application entry point
 ├── pkg/                 # Public packages
 │   ├── calculator/      # Calculator package with basic arithmetic operations
 │   └── version/         # Version information package
@@ -50,7 +50,7 @@ make build-all
 
 ```bash
 # Run with default operation (add)
-./bin/gorelease 5 3
+./bin/mathreleaser 5 3
 
 # Specify an operation
 ```
@@ -75,12 +75,12 @@ mkdir -p .git/hooks
 cp .githooks/* .git/hooks/
 chmod +x .git/hooks/*
 ```
-./bin/gorelease -op=subtract 5 3
-./bin/gorelease -op=multiply 5 3
-./bin/gorelease -op=divide 5 3
+./bin/mathreleaser -op=subtract 5 3
+./bin/mathreleaser -op=multiply 5 3
+./bin/mathreleaser -op=divide 5 3
 
 # Show version information
-./bin/gorelease -version
+./bin/mathreleaser -version
 ```
 
 ## Changelog Process

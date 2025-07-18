@@ -5,8 +5,8 @@ archives:
   - formats: ["binary"]
 
 builds:
-  - id: "gorelease"
-    binary: "gorelease"
+  - id: "mathreleaser"
+    binary: "mathreleaser"
     env:
       - "CGO_ENABLED=0"
     goos:
