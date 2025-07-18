@@ -5,10 +5,10 @@ This PR optimizes the GitHub Actions workflows in this repository to improve eff
 ## Changes
 
 1. **Created a unified pipeline workflow** (`main-pipeline.yml`) that consolidates four previously separate workflows:
-   - `ci.yml` (CI testing and building)
-   - `gosec.yml` (GoSec security scanning)
-   - `security-checks.yml` (Multiple security checks)
-   - `codeql-analysis.yml` (CodeQL analysis)
+   - `ci.yml` (CI testing and building) ✅ Removed
+   - `gosec.yml` (GoSec security scanning) ✅ Removed
+   - `security-checks.yml` (Multiple security checks) ✅ Removed
+   - `codeql-analysis.yml` (CodeQL analysis) ✅ Removed
 
 2. **Improved workflow efficiency** by:
    - Eliminating duplicate setup steps
@@ -30,3 +30,19 @@ This PR optimizes the GitHub Actions workflows in this repository to improve eff
 ## Implementation Plan
 
 See the detailed implementation plan in [.github/WORKFLOW-OPTIMIZATION.md](/.github/WORKFLOW-OPTIMIZATION.md).
+
+## Cleanup Status
+
+✅ **July 18, 2025**: Removed redundant workflow files that were consolidated into the main pipeline:
+
+- Deleted `ci.yml`
+- Deleted `gosec.yml`
+- Deleted `security-checks.yml`
+- Deleted `codeql-analysis.yml`
+
+Retained specialized workflows:
+
+- `main-pipeline.yml` (consolidated workflow)
+- `shell-lint.yml` (path-triggered for shell scripts)
+- `release.yml` (tag-triggered for releases)
+- `changelog.yml` (specialized changelog workflow)
