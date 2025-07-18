@@ -53,6 +53,28 @@ make build-all
 ./bin/gorelease 5 3
 
 # Specify an operation
+```
+
+### Git Hooks
+
+This repository includes git hooks to ensure code quality standards are met before pushing changes:
+
+- **pre-push**: Runs `make devcheck` before allowing a push to proceed, ensuring all code formatting, linting, security checks, and tests pass.
+
+To install the git hooks:
+
+```bash
+# Install the git hooks
+make install-hooks
+```
+
+Alternatively, you can manually copy the hooks from `.githooks/` to your local `.git/hooks/` directory and make them executable:
+
+```bash
+mkdir -p .git/hooks
+cp .githooks/* .git/hooks/
+chmod +x .git/hooks/*
+```
 ./bin/gorelease -op=subtract 5 3
 ./bin/gorelease -op=multiply 5 3
 ./bin/gorelease -op=divide 5 3

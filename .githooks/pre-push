@@ -1,0 +1,14 @@
+#!/bin/sh
+# Pre-push git hook to enforce Go linting and tests before pushing
+# Place this file at .git/hooks/pre-push and make it executable (chmod +x .git/hooks/pre-push)
+
+set -e
+
+# Run Go linting and tests
+printf '\033[1;34mRunning make devcheck before push...\033[0m\n'
+if ! make devcheck; then
+  printf '\033[1;31mPre-push hook failed: make devcheck did not pass.\033[0m\n'
+  exit 1
+fi
+
+printf '\033[1;32mPre-push checks passed. Proceeding with push.\033[0m\n'

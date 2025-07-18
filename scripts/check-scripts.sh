@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 #
 # Run shellcheck on all shell scripts in the repository
 #
@@ -12,8 +12,8 @@ find_scripts() {
   # Find files with .sh extension
   find . -name "*.sh" -type f | sort
 
-  # Find files with shebang line starting with #!/bin/bash or #!/usr/bin/env bash
-  find . -type f ! -path "*/\.*" ! -path "*/vendor/*" ! -path "*/node_modules/*" -perm +111 -exec grep -l '^\#\!/bin/bash\|^\#\!/usr/bin/env bash' {} \; 2>/dev/null | sort -u || true
+  # Find files with shebang line starting with #!/bin/bash, #!/usr/bin/env bash, or #!/bin/sh
+  find . -type f ! -path "*/\.*" ! -path "*/vendor/*" ! -path "*/node_modules/*" -perm +111 -exec grep -l '^\#\!/bin/bash\|^\#\!/usr/bin/env bash\|^\#\!/bin/sh' {} \; 2>/dev/null | sort -u || true
 }
 
 # Check if shellcheck is installed

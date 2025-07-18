@@ -62,6 +62,15 @@ build-all: clean
 install: build
 	cp bin/${BINARY_NAME} $(GOPATH)/bin/
 
+# Install git hooks
+.PHONY: install-hooks
+install-hooks:
+	@echo "Installing git hooks..."
+	@mkdir -p .git/hooks
+	@cp .githooks/* .git/hooks/ 2>/dev/null || true
+	@chmod +x .git/hooks/*
+	@echo "Git hooks installed successfully."
+
 # Format the code
 .PHONY: fmt
 fmt: fmt-go fmt-shell
@@ -109,8 +118,33 @@ govulncheck:
 
 # Developer check - run before submitting PR
 .PHONY: devcheck
-devcheck: fmt vet lint gosec govulncheck test
+devcheck: fmt vet lint gosec govulncheck test lint-all-shell
 	@echo "✅ All developer checks passed! Ready to submit PR."
+
+# Lint all shell scripts (shellcheck and shfmt)
+.PHONY: lint-all-shell
+lint-all-shell:
+	@echo "Running shellcheck on all shell scripts..."
+	@command -v shellcheck >/dev/null 2>&1 || { echo "shellcheck not found. Installing..."; sudo apt-get update && sudo apt-get install -y shellcheck; }
+	SCRIPTS=$(shell find . -name "*.sh" -type f | sort); \
+	SCRIPTS="$$SCRIPTS $(shell find . -type f ! -path "*/.*" ! -path "*/vendor/*" ! -path "*/node_modules/*" -perm +111 -exec grep -l '^\#\!/bin/bash\|^\#\!/usr/bin/env bash' {} \; 2>/dev/null | sort -u || true)"; \
+	for script in $$SCRIPTS; do \
+	  if [ -n "$$script" ]; then \
+		echo "Checking $$script"; \
+		shellcheck -x "$$script" || exit 1; \
+	  fi; \
+	done
+
+	@echo "Running shfmt on all shell scripts..."
+	@command -v shfmt >/dev/null 2>&1 || { echo "shfmt not found. Installing..."; go install mvdan.cc/sh/v3/cmd/shfmt@latest; }
+	SCRIPTS=$(shell find . -name "*.sh" -type f | sort); \
+	SCRIPTS="$$SCRIPTS $(shell find . -type f ! -path "*/.*" ! -path "*/vendor/*" ! -path "*/node_modules/*" -perm +111 -exec grep -l '^\#\!/bin/bash\|^\#\!/usr/bin/env bash' {} \; 2>/dev/null | sort -u || true)"; \
+	for script in $$SCRIPTS; do \
+	  if [ -n "$$script" ]; then \
+		echo "Checking $$script"; \
+		shfmt -i 2 -ci -bn -s -d "$$script" || exit 1; \
+	  fi; \
+	done
 
 # Generate documentation
 .PHONY: docs
