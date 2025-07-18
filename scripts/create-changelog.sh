@@ -70,9 +70,9 @@ if [ -f "$CHANGELOG_FILE" ]; then
 fi
 
 # Create the changelog file
-echo '```release-note:'"${CHANGE_TYPE}" > "$CHANGELOG_FILE"
-echo "$MESSAGE" >> "$CHANGELOG_FILE"
-echo '```' >> "$CHANGELOG_FILE"
+echo '```release-note:'"${CHANGE_TYPE}" >"$CHANGELOG_FILE"
+echo "$MESSAGE" >>"$CHANGELOG_FILE"
+echo '```' >>"$CHANGELOG_FILE"
 
 echo "Changelog entry created at: $CHANGELOG_FILE"
 echo "Content:"
