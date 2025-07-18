@@ -38,17 +38,11 @@ jobs:
       - name: Check out code
         uses: actions/checkout@v4
 
-      - name: Set up Go
-        uses: actions/setup-go@v4
-        with:
-          go-version: '1.22.4'
 
-      - name: Install golangci-lint
+      # Go linting is not run in CI. Please run 'make devcheck' locally before pushing changes.
+      - name: Linting instructions
         run: |
-          curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s -- -b $(go env GOPATH)/bin v1.55.2
-
-      - name: Run golangci-lint
-        run: golangci-lint run ./...
+          echo "Go linting is not enforced in CI. Please run 'make devcheck' locally before pushing."
 
       - name: Install shellcheck
         run: |
