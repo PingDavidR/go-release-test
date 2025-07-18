@@ -51,9 +51,9 @@ jobs:
 
       # GoSec security scanning
       - name: Run GoSec Security Scanner
-        uses: securego/gosec@master
-        with:
-          args: ./...
+        run: |
+          go install github.com/securego/gosec/v2/cmd/gosec@latest
+          gosec -fmt=sarif -out=gosec.sarif ./...
         
       - name: Upload GoSec scan results
         uses: github/codeql-action/upload-sarif@v2

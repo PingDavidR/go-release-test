@@ -46,3 +46,10 @@ Retained specialized workflows:
 - `shell-lint.yml` (path-triggered for shell scripts)
 - `release.yml` (tag-triggered for releases)
 - `changelog.yml` (specialized changelog workflow)
+
+## Fixes
+
+✅ **July 18, 2025**: Fixed Go version compatibility issue in Security Scan job:
+
+- Changed GoSec security scanner from Docker-based action to direct installation
+- This ensures GoSec uses the same Go version (1.24.5) as specified in go.mod and workflow setup
