@@ -35,54 +35,16 @@ jobs:
           cp bin/* dist/
           cd dist && find . -type f -name "gorelease*" | xargs sha256sum > checksums.txt
       
-      - name: Generate release notes
+      - name: Create GitHub Release
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          if [ -f "GITHUB_RELEASE_NOTES.md" ]; then
-            cp GITHUB_RELEASE_NOTES.md dist/release-notes.md
-          else
-            echo "# Release ${GITHUB_REF#refs/tags/}" > dist/release-notes.md
-          fi
-      
-      - name: Create release using GitHub CLI
-        run: |
-          echo "Creating release for tag ${GITHUB_REF#refs/tags/}"
-          RELEASE_NOTES=$(cat dist/release-notes.md)
-          # Use GitHub API to create a release
-          curl \
-            -X POST \
-            -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
-            -H "Accept: application/vnd.github.v3+json" \
-            https://api.github.com/repos/${{ github.repository }}/releases \
-            -d "{
-              \"tag_name\": \"${GITHUB_REF#refs/tags/}\",
-              \"name\": \"Release ${GITHUB_REF#refs/tags/}\",
-              \"body\": $(echo "$RELEASE_NOTES" | jq -s -R .),
-              \"draft\": false,
-              \"prerelease\": false
-            }" > release.json
+          TAG=${GITHUB_REF#refs/tags/}
+          echo "Creating release for tag $TAG"
           
-          # Extract the upload URL from the response
-          UPLOAD_URL=$(cat release.json | jq -r .upload_url | sed 's/{?name,label}//')
-          
-          # Upload all files in the dist directory
-          for file in dist/*; do
-            echo "Uploading $file"
-            filename=$(basename "$file")
-            
-            # Determine content type
-            if [[ "$filename" == *.txt ]]; then
-              content_type="text/plain"
-            elif [[ "$filename" == *.md ]]; then
-              content_type="text/markdown"
-            else
-              content_type="application/octet-stream"
-            fi
-            
-            curl \
-              -X POST \
-              -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
-              -H "Accept: application/vnd.github.v3+json" \
-              -H "Content-Type: $content_type" \
-              --data-binary @"$file" \
-              "${UPLOAD_URL}?name=${filename}"
-          done
+          # Create a release
+          gh release create "$TAG" \
+            --title "Release $TAG" \
+            --notes-file GITHUB_RELEASE_NOTES.md \
+            --draft=false \
+            dist/*
