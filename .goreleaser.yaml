@@ -1,0 +1,34 @@
+version: 2
+
+# Publish the binaries directly, without any archiving
+archives:
+  - formats: ["binary"]
+
+builds:
+  - id: "gorelease"
+    binary: "gorelease"
+    env:
+      - "CGO_ENABLED=0"
+    goos:
+      - "darwin"
+      - "linux"
+      - "windows"
+    goarch:
+      - "amd64"
+      - "arm64"
+
+checksum:
+  algorithm: "sha256"
+  split: false
+  disable: false
+
+release:
+  prerelease: "auto"
+  make_latest: true
+  mode: "append"
+
+signs:
+  - id: "checksum"
+    artifacts: "checksum"
+  - id: "binary"
+    artifacts: "binary"
