@@ -13,7 +13,7 @@ This repository is designed for testing Go release processes. It serves as a san
 
 ```plaintext
 .
-├── cmd/mathreleaser/       # Main application entry point
+├── cmd/mathreleaser/    # Main application entry point
 ├── pkg/                 # Public packages
 │   ├── calculator/      # Calculator package with basic arithmetic operations
 │   └── version/         # Version information package

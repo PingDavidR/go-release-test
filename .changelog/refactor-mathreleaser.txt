@@ -1,0 +1,3 @@
+type: enhancement
+title: Refactored project from gorelease to mathreleaser
+description: Renamed binary and all related references from gorelease to mathreleaser to better reflect the mathematical nature of the application.
