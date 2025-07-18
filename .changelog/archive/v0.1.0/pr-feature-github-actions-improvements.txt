@@ -1,0 +1,7 @@
+```release-note:enhancement
+Optimized GitHub Actions workflows by consolidating overlapping workflows and implementing automated changelog generation
+```
+
+```release-note:feature
+Added automated changelog generation for PRs, supporting both manual and automatic changelog entry creation
+```
