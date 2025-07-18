@@ -10,34 +10,13 @@ on:
   workflow_dispatch:
 
 jobs:
-  # Basic CI testing job
-  test:
-    name: Test
-    runs-on: ubuntu-latest
-    steps:
-    - name: Check out code
-      uses: actions/checkout@v4
-
-    - name: Set up Go
-      uses: actions/setup-go@v4
-      with:
-        go-version: '1.24.5'
-
-    - name: Get dependencies
-      run: go mod download
-
-    - name: Run tests
-      run: go test -v ./...
-
   # Linting job (Go and Shell)
   lint:
     name: Lint
-    needs: test
     runs-on: ubuntu-latest
     steps:
       - name: Check out code
         uses: actions/checkout@v4
-
 
       # Go linting is not run in CI. Please run 'make devcheck' locally before pushing changes.
       - name: Linting instructions
@@ -72,10 +51,30 @@ jobs:
             shfmt -i 2 -ci -bn -s -d "$script" || exit 1
           done
 
+  # Basic CI testing job
+  test:
+    name: Test
+    needs: lint
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v4
+
+      - name: Set up Go
+        uses: actions/setup-go@v4
+        with:
+          go-version: '1.24.5'
+
+      - name: Get dependencies
+        run: go mod download
+
+      - name: Run tests
+        run: go test -v ./...
+
   # Security scanning job - combines GoSec, govulncheck, and partial CodeQL setup
   security-scan:
     name: Security Scan
-    needs: [test, lint]
+    needs: test
     runs-on: ubuntu-latest
     permissions:
       actions: read
@@ -138,30 +137,3 @@ jobs:
 
       - name: Perform CodeQL Analysis
         uses: github/codeql-action/analyze@v3
-
-  # Build job that runs after all tests and security checks have passed
-  build:
-    name: Build
-    # Require all security jobs to pass before building
-    needs: [test, lint, security-scan, codeql-analysis]
-    runs-on: ubuntu-latest
-    steps:
-    - name: Check out code
-      uses: actions/checkout@v4
-
-    - name: Set up Go
-      uses: actions/setup-go@v4
-      with:
-        go-version: '1.24.5'
-
-    - name: Get dependencies
-      run: go mod download
-
-    - name: Build
-      run: make build
-
-    - name: Upload binary
-      uses: actions/upload-artifact@v4
-      with:
-        name: gorelease
-        path: bin/gorelease
