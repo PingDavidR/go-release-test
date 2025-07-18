@@ -10,10 +10,34 @@ on:
   workflow_dispatch:
 
 jobs:
+  # Check for changelog entry in PR
+  verify-changelog:
+    name: Verify Changelog Entry
+    runs-on: ubuntu-latest
+    if: github.event_name == 'pull_request'
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Verify PR has changelog entry
+        run: |
+          PR_NUMBER="${{ github.event.pull_request.number }}"
+          CHANGELOG_FILE=".changelog/pr-${PR_NUMBER}.txt"
+          
+          if [ ! -f "$CHANGELOG_FILE" ]; then
+            echo "::error::No changelog entry found for PR #${PR_NUMBER}. Please create a file at .changelog/pr-${PR_NUMBER}.txt with your changes."
+            echo "See the .changelog/README.md file for instructions on how to create a changelog entry."
+            exit 1
+          else
+            echo "Changelog entry found for PR #${PR_NUMBER}."
+          fi
   # Linting job (Go and Shell)
   lint:
     name: Lint
     runs-on: ubuntu-latest
+    needs: [verify-changelog]
     steps:
       - name: Check out code
         uses: actions/checkout@v4
