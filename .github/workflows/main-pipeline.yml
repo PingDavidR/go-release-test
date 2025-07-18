@@ -10,29 +10,105 @@ on:
   workflow_dispatch:
 
 jobs:
-  # Check for changelog entry in PR
+  # Check for changelog entry in PR and create if missing
   verify-changelog:
-    name: Verify Changelog Entry
+    name: Verify or Create Changelog Entry
     runs-on: ubuntu-latest
     if: github.event_name == 'pull_request'
+    permissions:
+      contents: write
+      pull-requests: write
     steps:
       - name: Check out code
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
 
-      - name: Verify PR has changelog entry
+      - name: Get PR info
+        id: pr
         run: |
-          PR_NUMBER="${{ github.event.pull_request.number }}"
+          echo "number=${{ github.event.pull_request.number }}" >> $GITHUB_OUTPUT
+          echo "title=${{ github.event.pull_request.title }}" >> $GITHUB_OUTPUT
+
+      - name: Check for changelog entry
+        id: check_changelog
+        run: |
+          PR_NUMBER="${{ steps.pr.outputs.number }}"
           CHANGELOG_FILE=".changelog/pr-${PR_NUMBER}.txt"
           
-          if [ ! -f "$CHANGELOG_FILE" ]; then
-            echo "::error::No changelog entry found for PR #${PR_NUMBER}. Please create a file at .changelog/pr-${PR_NUMBER}.txt with your changes."
-            echo "See the .changelog/README.md file for instructions on how to create a changelog entry."
-            exit 1
+          if [ -f "$CHANGELOG_FILE" ]; then
+            echo "Changelog file $CHANGELOG_FILE exists"
+            echo "exists=true" >> $GITHUB_OUTPUT
           else
-            echo "Changelog entry found for PR #${PR_NUMBER}."
+            echo "Changelog file $CHANGELOG_FILE does not exist"
+            echo "exists=false" >> $GITHUB_OUTPUT
           fi
+
+      - name: Create changelog entry if missing
+        if: steps.check_changelog.outputs.exists == 'false'
+        run: |
+          PR_NUMBER="${{ steps.pr.outputs.number }}"
+          PR_TITLE="${{ steps.pr.outputs.title }}"
+          CHANGELOG_FILE=".changelog/pr-${PR_NUMBER}.txt"
+          
+          # Create changelog directory if it doesn't exist
+          mkdir -p .changelog
+          
+          # Determine the type of change based on PR title
+          # This is a simple heuristic and can be improved
+          if [[ "$PR_TITLE" == *"fix"* || "$PR_TITLE" == *"Fix"* ]]; then
+            CHANGE_TYPE="bug"
+            MESSAGE="Fixed issue from PR #${PR_NUMBER}: ${PR_TITLE}"
+          elif [[ "$PR_TITLE" == *"feat"* || "$PR_TITLE" == *"Feat"* || "$PR_TITLE" == *"Add"* || "$PR_TITLE" == *"add"* ]]; then
+            CHANGE_TYPE="feature"
+            MESSAGE="Added new feature from PR #${PR_NUMBER}: ${PR_TITLE}"
+          elif [[ "$PR_TITLE" == *"break"* || "$PR_TITLE" == *"Break"* ]]; then
+            CHANGE_TYPE="breaking-change"
+            MESSAGE="Breaking change from PR #${PR_NUMBER}: ${PR_TITLE}"
+          elif [[ "$PR_TITLE" == *"security"* || "$PR_TITLE" == *"Security"* ]]; then
+            CHANGE_TYPE="security"
+            MESSAGE="Security improvement from PR #${PR_NUMBER}: ${PR_TITLE}"
+          elif [[ "$PR_TITLE" == *"deprecat"* || "$PR_TITLE" == *"Deprecat"* ]]; then
+            CHANGE_TYPE="deprecation"
+            MESSAGE="Deprecation notice from PR #${PR_NUMBER}: ${PR_TITLE}"
+          else
+            CHANGE_TYPE="enhancement"
+            MESSAGE="Enhancement from PR #${PR_NUMBER}: ${PR_TITLE}"
+          fi
+          
+          # Create the changelog file with template content
+          echo '```release-note:'"${CHANGE_TYPE}" > "$CHANGELOG_FILE"
+          echo "${MESSAGE}" >> "$CHANGELOG_FILE"
+          echo '```' >> "$CHANGELOG_FILE"
+          
+          echo "Created changelog file $CHANGELOG_FILE"
+          
+          # Commit the new changelog file
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
+          git add "$CHANGELOG_FILE"
+          git commit -m "Add changelog entry for PR #${PR_NUMBER}"
+          git push
+
+      - name: Comment on PR if changelog was created
+        if: steps.check_changelog.outputs.exists == 'false'
+        uses: actions/github-script@v7
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const prNumber = ${{ steps.pr.outputs.number }};
+            
+            github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: prNumber,
+              body: |
+                ✅ I've automatically created a changelog entry for this PR in `.changelog/pr-${prNumber}.txt`.
+                
+                Please review and update the changelog entry if needed to better describe the changes in this PR. You can edit the file directly from GitHub or in your local repository.
+                
+                The changelog entry is used to generate release notes when a new version is released.
+            });
   # Linting job (Go and Shell)
   lint:
     name: Lint

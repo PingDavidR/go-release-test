@@ -16,7 +16,7 @@ You can create a changelog entry in one of two ways:
 
 ### Automatic Creation
 
-When you create a PR, GitHub Actions will check if a changelog entry exists for your PR. If not, it will automatically create one based on your PR title. The type of change will be inferred from your PR title (e.g., "fix", "feat", etc.).
+When you create a PR, the CI pipeline will check if a changelog entry exists for your PR. If not, it will automatically create one based on your PR title. The type of change will be inferred from your PR title (e.g., "fix", "feat", etc.).
 
 ### Manual Creation
 
