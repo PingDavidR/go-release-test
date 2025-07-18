@@ -4,10 +4,47 @@ This directory contains changelog entries for changes made to the repository. Th
 
 ## How It Works
 
-1. When making a change, create a new changelog file in this directory with a unique name, e.g., `001.txt`, `002.txt`, etc.
-2. The changelog file should follow the format shown in the examples below.
-3. During the release process, all changelog files are combined to generate release notes.
-4. After release, all changelog files are moved to the `archive/{version}` directory.
+1. When you create a PR, you should create a changelog file named `pr-{PR_NUMBER}.txt` in this directory.
+2. If you don't create one, GitHub Actions will automatically create one for you.
+3. The changelog file should follow the format shown in the examples below.
+4. The description in the changelog entry must be 95 characters or less.
+5. During the release process, all changelog files are combined to generate release notes.
+6. After release, all changelog files are moved to the `archive/{version}` directory.
+
+## Creating a Changelog Entry
+
+You can create a changelog entry in one of two ways:
+
+### Automatic Creation
+
+When you create a PR, the CI pipeline will check if a changelog entry exists for your PR. If not, it will automatically create one based on your PR title. The type of change will be inferred from your PR title (e.g., "fix", "feat", etc.).
+
+### Manual Creation
+
+You can also create a changelog entry manually using one of these methods:
+
+1. **Using the script**:
+
+   ```bash
+   ./scripts/create-changelog.sh <PR-NUMBER> <CHANGE-TYPE> "Your change description"
+   ```
+
+   Example:
+
+   ```bash
+   ./scripts/create-changelog.sh 123 feature "Added new calculator function"
+   ```
+
+2. **Manually creating the file**:
+   Create a file named `pr-{PR_NUMBER}.txt` in the `.changelog` directory with the following format:
+
+   ```plaintext
+   <triple backticks>release-note:feature
+   Your change description
+   <triple backticks>
+   ```
+
+   (Replace `<triple backticks>` with three backtick characters)
 
 ## Changelog File Format
 
@@ -20,6 +57,10 @@ Changelog files use a specific format with sections marked by triple backticks a
 - `release-note:note` - General notes about the release
 - `release-note:security` - Security-related changes
 - `release-note:deprecation` - Deprecated features or functionality
+
+### Character Limit
+
+The description text in each changelog entry must be 95 characters or less. This limit ensures that release notes are concise and readable. If your description exceeds this limit, you'll need to shorten it.
 
 ## Example
 
@@ -42,9 +83,10 @@ Fixed issue where division by zero would cause the application to crash instead 
 
 The repository includes scripts for working with changelog files:
 
+- `scripts/create-changelog.sh` - Creates a new changelog entry for a PR
 - `scripts/generate-release-notes.sh` - Generates two types of release notes:
   1. `GITHUB_RELEASE_NOTES.md` with the format `<commit hash> <description> (PR #)` for GitHub releases
   2. `release-notes/{version}/RELEASE_NOTES.adoc` with a human-readable AsciiDoc version
 - `scripts/archive-changelog.sh` - Archives changelog files after a release
 
-Run these scripts with the appropriate version number when performing a release.
+Run these scripts with the appropriate parameters when needed.
