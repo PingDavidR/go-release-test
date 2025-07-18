@@ -79,9 +79,6 @@ jobs:
       actions: read
       contents: read
       security-events: write
-    # Skip this job if CodeQL is not yet enabled on the repository
-    # Remove this 'if' condition once code scanning is enabled in the repository settings
-    if: false
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -100,8 +97,8 @@ jobs:
   # Build job that runs after all tests and security checks have passed
   build:
     name: Build
-    # Only require the jobs that are actually running (not skipped)
-    needs: [test, security-scan]
+    # Require all security jobs to pass before building
+    needs: [test, security-scan, codeql-analysis]
     runs-on: ubuntu-latest
     steps:
     - name: Check out code
