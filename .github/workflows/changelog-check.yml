@@ -73,7 +73,7 @@ jobs:
           fi
           
           # Create the changelog file with template content
-          echo '```release-note:'${CHANGE_TYPE} > "$CHANGELOG_FILE"
+          echo '```release-note:'"${CHANGE_TYPE}" > "$CHANGELOG_FILE"
           echo "${MESSAGE}" >> "$CHANGELOG_FILE"
           echo '```' >> "$CHANGELOG_FILE"
           

@@ -62,7 +62,7 @@ mkdir -p "$CHANGELOG_DIR"
 # Check if file already exists
 if [ -f "$CHANGELOG_FILE" ]; then
   echo "Warning: Changelog file '$CHANGELOG_FILE' already exists."
-  read -p "Do you want to overwrite it? (y/n): " CONFIRM
+  read -r -p "Do you want to overwrite it? (y/n): " CONFIRM
   if [ "$CONFIRM" != "y" ]; then
     echo "Operation cancelled."
     exit 0
@@ -70,7 +70,7 @@ if [ -f "$CHANGELOG_FILE" ]; then
 fi
 
 # Create the changelog file
-echo '```release-note:'${CHANGE_TYPE} > "$CHANGELOG_FILE"
+echo '```release-note:'"${CHANGE_TYPE}" > "$CHANGELOG_FILE"
 echo "$MESSAGE" >> "$CHANGELOG_FILE"
 echo '```' >> "$CHANGELOG_FILE"
 
