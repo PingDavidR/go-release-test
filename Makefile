@@ -1,5 +1,5 @@
 # Variables
-BINARY_NAME=gorelease
+BINARY_NAME=mathreleaser
 VERSION=$(shell grep -o '"[0-9]\+\.[0-9]\+\.[0-9]\+"' pkg/version/version.go | tr -d '"')
 GIT_COMMIT=$(shell git rev-parse --short HEAD)
 BUILD_DATE=$(shell date -u '+%Y-%m-%d %H:%M:%S')
@@ -13,7 +13,7 @@ all: clean build test
 # Build the application
 .PHONY: build
 build:
-	go build ${LDFLAGS} -o bin/${BINARY_NAME} ./cmd/gorelease
+	go build ${LDFLAGS} -o bin/${BINARY_NAME} ./cmd/mathreleaser
 
 # Run the application
 .PHONY: run
@@ -54,7 +54,7 @@ build-all: clean
 		$(eval OS := $(word 1,$(OS_ARCH)))\
 		$(eval ARCH := $(word 2,$(OS_ARCH)))\
 		$(eval BINARY_SUFFIX := $(if $(filter windows,$(OS)),.exe,))\
-		GOOS=$(OS) GOARCH=$(ARCH) go build ${LDFLAGS} -o bin/${BINARY_NAME}-$(OS)-$(ARCH)$(BINARY_SUFFIX) ./cmd/gorelease; \
+		GOOS=$(OS) GOARCH=$(ARCH) go build ${LDFLAGS} -o bin/${BINARY_NAME}-$(OS)-$(ARCH)$(BINARY_SUFFIX) ./cmd/mathreleaser; \
 	)
 
 # Install the application

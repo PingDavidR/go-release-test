@@ -41,7 +41,7 @@ jobs:
         run: |
           mkdir -p dist
           cp bin/* dist/
-          cd dist && find . -type f -name "gorelease*" | xargs sha256sum > checksums.txt
+          cd dist && find . -type f -name "mathreleaser*" | xargs sha256sum > checksums.txt
       
       - name: Create GitHub Release
         env:

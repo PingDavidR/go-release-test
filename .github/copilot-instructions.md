@@ -5,6 +5,10 @@ This repository is designed for testing Go release processes. It serves as a san
 
 ## Code Standards
 
+## Operations
+- operate off branches when making changes
+- use pull requests for code reviews
+- use MCP servers whenever possible for any operations
 ### Go Version
 - Use Go 1.22 or later for all development
 - Ensure backwards compatibility is maintained where appropriate
