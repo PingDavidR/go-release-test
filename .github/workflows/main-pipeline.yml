@@ -1,0 +1,121 @@
+name: Main Pipeline
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+  schedule:
+    - cron: '0 0 * * 0' # Run at midnight every Sunday
+
+jobs:
+  # Basic CI testing job
+  test:
+    name: Test
+    runs-on: ubuntu-latest
+    steps:
+    - name: Check out code
+      uses: actions/checkout@v4
+
+    - name: Set up Go
+      uses: actions/setup-go@v4
+      with:
+        go-version: '1.24.5'
+
+    - name: Get dependencies
+      run: go mod download
+
+    - name: Run tests
+      run: go test -v ./...
+
+  # Security scanning job - combines GoSec, govulncheck, and partial CodeQL setup
+  security-scan:
+    name: Security Scan
+    needs: test
+    runs-on: ubuntu-latest
+    permissions:
+      actions: read
+      contents: read
+      security-events: write
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v4
+
+      - name: Set up Go
+        uses: actions/setup-go@v4
+        with:
+          go-version: '1.24.5'
+
+      - name: Get dependencies
+        run: go mod download
+
+      # GoSec security scanning
+      - name: Run GoSec Security Scanner
+        run: |
+          go install github.com/securego/gosec/v2/cmd/gosec@latest
+          gosec -fmt=sarif -out=gosec.sarif ./...
+        
+      - name: Upload GoSec scan results
+        uses: github/codeql-action/upload-sarif@v2
+        with:
+          sarif_file: gosec.sarif
+
+      # Vulnerability checking
+      - name: Run govulncheck
+        run: |
+          go install golang.org/x/vuln/cmd/govulncheck@latest
+          govulncheck ./...
+
+  # CodeQL analysis job
+  codeql-analysis:
+    name: CodeQL Analysis
+    needs: test
+    runs-on: ubuntu-latest
+    permissions:
+      actions: read
+      contents: read
+      security-events: write
+    # Skip this job if CodeQL is not yet enabled on the repository
+    # Remove this 'if' condition once code scanning is enabled in the repository settings
+    if: false
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Initialize CodeQL
+        uses: github/codeql-action/init@v2
+        with:
+          languages: go
+
+      - name: Autobuild
+        uses: github/codeql-action/autobuild@v2
+
+      - name: Perform CodeQL Analysis
+        uses: github/codeql-action/analyze@v2
+
+  # Build job that runs after all tests and security checks have passed
+  build:
+    name: Build
+    # Only require the jobs that are actually running (not skipped)
+    needs: [test, security-scan]
+    runs-on: ubuntu-latest
+    steps:
+    - name: Check out code
+      uses: actions/checkout@v4
+
+    - name: Set up Go
+      uses: actions/setup-go@v4
+      with:
+        go-version: '1.24.5'
+
+    - name: Get dependencies
+      run: go mod download
+
+    - name: Build
+      run: make build
+
+    - name: Upload binary
+      uses: actions/upload-artifact@v3
+      with:
+        name: gorelease
+        path: bin/gorelease
