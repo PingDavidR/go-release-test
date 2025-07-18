@@ -32,5 +32,5 @@ func PrintError(format string, args ...interface{}) {
 
 // EnsureDir ensures that a directory exists.
 func EnsureDir(path string) error {
-	return os.MkdirAll(path, 0755)
+	return os.MkdirAll(path, 0750)
 }
