@@ -1,3 +1,0 @@
-```release-note:feature
-Added PR changelog enforcement system that requires every PR to have a matching changelog entry
-```
