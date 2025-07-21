@@ -50,21 +50,21 @@ fi
 echo "Generating GitHub release notes format..."
 
 # Start with an empty file
-> "$GITHUB_OUTPUT_FILE"
+: > "$GITHUB_OUTPUT_FILE"
 
 # Extract and format content sections
-grep -A 100 "== FEATURES" "$ASCIIDOC_INPUT_FILE" | grep -B 100 -m 1 "== ENHANCEMENTS" | grep -v "== " | grep -v "^$" | sed 's/\* //' >> "$GITHUB_OUTPUT_FILE" || true
-echo "" >> "$GITHUB_OUTPUT_FILE"
+grep -A 100 "== FEATURES" "$ASCIIDOC_INPUT_FILE" | grep -B 100 -m 1 "== ENHANCEMENTS" | grep -v "== " | grep -v "^$" | sed 's/\* //' >>"$GITHUB_OUTPUT_FILE" || true
+echo "" >>"$GITHUB_OUTPUT_FILE"
 
-grep -A 100 "== ENHANCEMENTS" "$ASCIIDOC_INPUT_FILE" | grep -B 100 -m 1 "== " | grep -v "== ENHANCEMENTS" | grep -v "== " | grep -v "^$" | sed 's/\* //' >> "$GITHUB_OUTPUT_FILE" || true
-echo "" >> "$GITHUB_OUTPUT_FILE"
+grep -A 100 "== ENHANCEMENTS" "$ASCIIDOC_INPUT_FILE" | grep -B 100 -m 1 "== " | grep -v "== ENHANCEMENTS" | grep -v "== " | grep -v "^$" | sed 's/\* //' >>"$GITHUB_OUTPUT_FILE" || true
+echo "" >>"$GITHUB_OUTPUT_FILE"
 
 # Add any remaining sections (NOTES, SECURITY, etc.) - customize as needed
-grep -A 100 "== NOTES" "$ASCIIDOC_INPUT_FILE" | grep -v "== NOTES" | grep -v "^$" | sed 's/\* //' >> "$GITHUB_OUTPUT_FILE" || true
-echo "" >> "$GITHUB_OUTPUT_FILE"
+grep -A 100 "== NOTES" "$ASCIIDOC_INPUT_FILE" | grep -v "== NOTES" | grep -v "^$" | sed 's/\* //' >>"$GITHUB_OUTPUT_FILE" || true
+echo "" >>"$GITHUB_OUTPUT_FILE"
 
 # Add the commit hash link at the end
-echo "[${SHORT_HASH}](https://github.com/PingDavidR/go-release-test/commit/${COMMIT_HASH})" >> "$GITHUB_OUTPUT_FILE"
+echo "[${SHORT_HASH}](https://github.com/PingDavidR/go-release-test/commit/${COMMIT_HASH})" >>"$GITHUB_OUTPUT_FILE"
 
 # ---------------------------------------
 # Create Human-friendly release notes (with sections)
@@ -77,52 +77,54 @@ echo "Generating human-friendly release notes..."
   echo ""
   echo "Release Date: $RELEASE_DATE"
   echo ""
-} > "$HUMAN_OUTPUT_FILE"
+} >"$HUMAN_OUTPUT_FILE"
 
 # Process FEATURES section
 if grep -q "== FEATURES" "$ASCIIDOC_INPUT_FILE"; then
-  echo "## Features" >> "$HUMAN_OUTPUT_FILE"
-  echo "" >> "$HUMAN_OUTPUT_FILE"
-  grep -A 100 "== FEATURES" "$ASCIIDOC_INPUT_FILE" | grep -B 100 -m 1 "== " | grep -v "== FEATURES" | grep -v "== " | grep -v "^$" | sed 's/\* /- /' >> "$HUMAN_OUTPUT_FILE" || true
-  echo "" >> "$HUMAN_OUTPUT_FILE"
+  echo "## Features" >>"$HUMAN_OUTPUT_FILE"
+  echo "" >>"$HUMAN_OUTPUT_FILE"
+  grep -A 100 "== FEATURES" "$ASCIIDOC_INPUT_FILE" | grep -B 100 -m 1 "== " | grep -v "== FEATURES" | grep -v "== " | grep -v "^$" | sed 's/\* /- /' >>"$HUMAN_OUTPUT_FILE" || true
+  echo "" >>"$HUMAN_OUTPUT_FILE"
 fi
 
 # Process ENHANCEMENTS section
 if grep -q "== ENHANCEMENTS" "$ASCIIDOC_INPUT_FILE"; then
-  echo "## Enhancements" >> "$HUMAN_OUTPUT_FILE"
-  echo "" >> "$HUMAN_OUTPUT_FILE"
-  grep -A 100 "== ENHANCEMENTS" "$ASCIIDOC_INPUT_FILE" | grep -B 100 -m 1 "== " | grep -v "== ENHANCEMENTS" | grep -v "== " | grep -v "^$" | sed 's/\* /- /' >> "$HUMAN_OUTPUT_FILE" || true
-  echo "" >> "$HUMAN_OUTPUT_FILE"
+  echo "## Enhancements" >>"$HUMAN_OUTPUT_FILE"
+  echo "" >>"$HUMAN_OUTPUT_FILE"
+  grep -A 100 "== ENHANCEMENTS" "$ASCIIDOC_INPUT_FILE" | grep -B 100 -m 1 "== " | grep -v "== ENHANCEMENTS" | grep -v "== " | grep -v "^$" | sed 's/\* /- /' >>"$HUMAN_OUTPUT_FILE" || true
+  echo "" >>"$HUMAN_OUTPUT_FILE"
 fi
 
 # Process NOTES section
 if grep -q "== NOTES" "$ASCIIDOC_INPUT_FILE"; then
-  echo "## Notes" >> "$HUMAN_OUTPUT_FILE"
-  echo "" >> "$HUMAN_OUTPUT_FILE"
-  grep -A 100 "== NOTES" "$ASCIIDOC_INPUT_FILE" | grep -v "== NOTES" | grep -v "^$" | sed 's/\* /- /' >> "$HUMAN_OUTPUT_FILE" || true
-  echo "" >> "$HUMAN_OUTPUT_FILE"
+  echo "## Notes" >>"$HUMAN_OUTPUT_FILE"
+  echo "" >>"$HUMAN_OUTPUT_FILE"
+  grep -A 100 "== NOTES" "$ASCIIDOC_INPUT_FILE" | grep -v "== NOTES" | grep -v "^$" | sed 's/\* /- /' >>"$HUMAN_OUTPUT_FILE" || true
+  echo "" >>"$HUMAN_OUTPUT_FILE"
 fi
 
 # Process SECURITY section (if exists)
 if grep -q "== SECURITY" "$ASCIIDOC_INPUT_FILE"; then
-  echo "## Security" >> "$HUMAN_OUTPUT_FILE"
-  echo "" >> "$HUMAN_OUTPUT_FILE"
-  grep -A 100 "== SECURITY" "$ASCIIDOC_INPUT_FILE" | grep -B 100 -m 1 "== " | grep -v "== SECURITY" | grep -v "== " | grep -v "^$" | sed 's/\* /- /' >> "$HUMAN_OUTPUT_FILE" || true
-  echo "" >> "$HUMAN_OUTPUT_FILE"
+  echo "## Security" >>"$HUMAN_OUTPUT_FILE"
+  echo "" >>"$HUMAN_OUTPUT_FILE"
+  grep -A 100 "== SECURITY" "$ASCIIDOC_INPUT_FILE" | grep -B 100 -m 1 "== " | grep -v "== SECURITY" | grep -v "== " | grep -v "^$" | sed 's/\* /- /' >>"$HUMAN_OUTPUT_FILE" || true
+  echo "" >>"$HUMAN_OUTPUT_FILE"
 fi
 
 # Process BUG FIXES section (if exists)
 if grep -q "== BUG FIXES" "$ASCIIDOC_INPUT_FILE"; then
-  echo "## Bug Fixes" >> "$HUMAN_OUTPUT_FILE"
-  echo "" >> "$HUMAN_OUTPUT_FILE"
-  grep -A 100 "== BUG FIXES" "$ASCIIDOC_INPUT_FILE" | grep -B 100 -m 1 "== " | grep -v "== BUG FIXES" | grep -v "== " | grep -v "^$" | sed 's/\* /- /' >> "$HUMAN_OUTPUT_FILE" || true
-  echo "" >> "$HUMAN_OUTPUT_FILE"
+  echo "## Bug Fixes" >>"$HUMAN_OUTPUT_FILE"
+  echo "" >>"$HUMAN_OUTPUT_FILE"
+  grep -A 100 "== BUG FIXES" "$ASCIIDOC_INPUT_FILE" | grep -B 100 -m 1 "== " | grep -v "== BUG FIXES" | grep -v "== " | grep -v "^$" | sed 's/\* /- /' >>"$HUMAN_OUTPUT_FILE" || true
+  echo "" >>"$HUMAN_OUTPUT_FILE"
 fi
 
 # Add commit section
-echo "## Commit" >> "$HUMAN_OUTPUT_FILE"
-echo "" >> "$HUMAN_OUTPUT_FILE"
-echo "[${SHORT_HASH}](https://github.com/PingDavidR/go-release-test/commit/${COMMIT_HASH})" >> "$HUMAN_OUTPUT_FILE"
+{
+  echo "## Commit"
+  echo ""
+  echo "[${SHORT_HASH}](https://github.com/PingDavidR/go-release-test/commit/${COMMIT_HASH})"
+} >> "$HUMAN_OUTPUT_FILE"
 
 echo "Release note files created successfully:"
 echo "- GitHub Release: $GITHUB_OUTPUT_FILE"
