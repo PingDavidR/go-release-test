@@ -37,13 +37,13 @@ fi
 PR_NUMBER="$1"
 CHANGE_TYPE="$2"
 MESSAGE="$3"
-JIRA_TICKET="${4:-}"  # Optional Jira ticket
+JIRA_TICKET="${4:-}" # Optional Jira ticket
 CHANGELOG_DIR=".changelog"
 CHANGELOG_FILE="${CHANGELOG_DIR}/pr-${PR_NUMBER}.txt"
 
 # Validate Jira ticket if provided
 if [ -n "$JIRA_TICKET" ]; then
-  if ! [[ "$JIRA_TICKET" =~ ^(CDI|PDI)-[0-9]+$ ]]; then
+  if ! [[ $JIRA_TICKET =~ ^(CDI|PDI)-[0-9]+$ ]]; then
     echo "Error: Invalid Jira ticket format. Must be CDI-## or PDI-##"
     exit 1
   fi
@@ -52,9 +52,9 @@ fi
 # If no Jira ticket was provided, prompt for one
 if [ -z "$JIRA_TICKET" ]; then
   read -r -p "Enter Jira ticket (format CDI-## or PDI-##, leave empty if none): " JIRA_TICKET
-  
+
   # Validate the Jira ticket if entered
-  if [ -n "$JIRA_TICKET" ] && ! [[ "$JIRA_TICKET" =~ ^(CDI|PDI)-[0-9]+$ ]]; then
+  if [ -n "$JIRA_TICKET" ] && ! [[ $JIRA_TICKET =~ ^(CDI|PDI)-[0-9]+$ ]]; then
     echo "Error: Invalid Jira ticket format. Must be CDI-## or PDI-##"
     exit 1
   fi

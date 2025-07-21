@@ -107,16 +107,16 @@ for FILE in "$CHANGELOG_DIR"/*.txt; do
         # Generate a mock commit hash for demonstration purposes
         # In a real implementation, you would get this from git
         COMMIT_HASH=$(echo "$FILENAME-$SECTION-$RANDOM" | md5sum | cut -c1-8)
-        
+
         # Extract Jira ticket if present (CDI-## or PDI-##)
         JIRA_TICKET=""
-        if [[ "$line" =~ (CDI-[0-9]+|PDI-[0-9]+) ]]; then
+        if [[ $line =~ (CDI-[0-9]+|PDI-[0-9]+) ]]; then
           JIRA_TICKET="${BASH_REMATCH[0]}"
         fi
-        
+
         # If the line doesn't contain a Jira ticket, keep the original content
         DISPLAY_LINE="$line"
-        
+
         # If the line contains a Jira ticket, remove it from the display line
         if [ -n "$JIRA_TICKET" ]; then
           DISPLAY_LINE=$(echo "$line" | sed -E "s/(CDI-[0-9]+|PDI-[0-9]+)//g" | sed -E "s/^[[:space:]]+|[[:space:]]+$//g")
@@ -124,12 +124,12 @@ for FILE in "$CHANGELOG_DIR"/*.txt; do
 
         # Format for each section: commit hash link, description, PR number link, Jira ticket
         ENTRY_FORMAT="* [\`$COMMIT_HASH\`](https://github.com/${REPO_OWNER}/${REPO_NAME}/commit/$COMMIT_HASH) $DISPLAY_LINE [#$FILENAME](https://github.com/${REPO_OWNER}/${REPO_NAME}/pull/$FILENAME)"
-        
+
         # Add Jira ticket if it exists
         if [ -n "$JIRA_TICKET" ]; then
           ENTRY_FORMAT="$ENTRY_FORMAT $JIRA_TICKET"
         fi
-        
+
         case "$SECTION" in
           BREAKING_CHANGES)
             BREAKING_CHANGES+="$ENTRY_FORMAT\n"
