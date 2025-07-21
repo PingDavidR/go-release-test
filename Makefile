@@ -42,8 +42,12 @@ release: clean test build-all generate-release-notes
 # Generate release notes
 .PHONY: generate-release-notes
 generate-release-notes:
-	@echo "Generating release notes for v${VERSION}..."
-	@./scripts/generate-release-notes.sh v${VERSION}
+	@TAG="v${VERSION}"; \
+	echo "Generating release notes for $$TAG"; \
+	./scripts/generate-release-notes.sh "$$TAG"; \
+	./scripts/format-release-notes.sh "$$TAG"; \
+	cp "release-notes/$$TAG/GITHUB_RELEASE.md" GITHUB_RELEASE_NOTES.md; \
+	echo "Release notes generated successfully"
 
 # Tag a new release
 .PHONY: tag

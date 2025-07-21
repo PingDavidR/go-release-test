@@ -1,5 +1,10 @@
 #!/usr/bin/env bash
 
+# Script to archive changelog entries after a release
+# Designed to work both locally and in CI environments
+
+set -euo pipefail
+
 # Check if a version argument is provided
 if [ -z "$1" ]; then
   echo "Usage: $0 <version>"
@@ -37,3 +42,16 @@ for FILE in "$CHANGELOG_DIR"/*.txt; do
 done
 
 echo "All changelog files have been archived to $ARCHIVE_DIR"
+
+# Check if we're in a CI environment and in detached HEAD state
+# In CI, we'll just archive without committing
+if [ -n "${CI:-}" ] || [ "$(git symbolic-ref --short HEAD 2>/dev/null || echo 'detached')" = "detached" ]; then
+  echo "Running in CI or detached HEAD state, skipping commit step"
+  exit 0
+fi
+
+# If running locally with a branch, commit the archive changes
+echo "Committing archive changes..."
+git add "$ARCHIVE_DIR"
+git commit -m "Archive changelog entries for $VERSION" || echo "No changes to commit"
+echo "Changelog entries archived and committed successfully"

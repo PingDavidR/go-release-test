@@ -37,8 +37,14 @@ jobs:
       - name: Generate Release Notes
         run: |
           TAG=${GITHUB_REF#refs/tags/}
-          ./scripts/generate-release-notes.sh $TAG
-          
+          echo "Generating release notes for $TAG"
+          # First generate the release notes from changelog entries
+          ./scripts/generate-release-notes.sh "$TAG"
+          # Then format them into GitHub and human-friendly formats
+          ./scripts/format-release-notes.sh "$TAG"
+          # Copy the GitHub release notes to the root for the GitHub release
+          cp "release-notes/$TAG/GITHUB_RELEASE.md" GITHUB_RELEASE_NOTES.md
+      
       - name: Build all platforms
         run: make build-all
       
@@ -58,6 +64,12 @@ jobs:
           # Create a release
           gh release create "$TAG" \
             --title "Release $TAG" \
-            --notes-file "release-notes/$TAG/GITHUB_RELEASE.md" \
+            --notes-file GITHUB_RELEASE_NOTES.md \
             --draft=false \
             dist/*
+            
+      - name: Archive Changelog Files
+        run: |
+          TAG=${GITHUB_REF#refs/tags/}
+          # Since we're in detached HEAD state, we'll skip the commit step
+          ./scripts/archive-changelog.sh "$TAG"
