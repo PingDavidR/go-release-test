@@ -3,12 +3,17 @@
 ## Repository Purpose
 This repository is designed for testing Go release processes. It serves as a sandbox for verifying release workflows, versioning strategies, and deployment pipelines for Go applications.
 
-## Code Standards
+## Protected Files - DO NOT MODIFY
+The following files must NEVER be modified by any AI agent or automated process:
+- `scripts/*.sh` - Release scripts require human approval
+- `.github/copilot-instructions.md` - This file
+- Any file containing "NOAGENT:" comment header
 
 ## Operations
 - operate off branches when making changes
 - use pull requests for code reviews
-- use MCP servers whenever possible for any operations
+- always use MCP servers whenever possible for any operations
+
 ### Go Version
 - Use Go 1.22 or later for all development
 - Ensure backwards compatibility is maintained where appropriate
@@ -70,6 +75,14 @@ This repository is designed for testing Go release processes. It serves as a san
 - Regularly update dependencies to their latest versions
 - Avoid unnecessary dependencies
 - Use Go workspaces for multi-module development if needed
+
+## Agent Protection Guidelines
+- Never modify files listed in the "Protected Files" section at the top of this document
+- Never edit files that include the comment header "NOAGENT:"
+- Do not modify release scripts, versioning information, or dependency files
+- Any PR that modifies protected files will be rejected by automated checks
+- If changes to protected files are needed, advise the user to make manual edits instead
+- Do not suggest modifications to the build system or release pipeline without explicit user approval
 
 ---
 

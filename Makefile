@@ -33,11 +33,21 @@ clean:
 
 # Create a new release
 .PHONY: release
-release: clean test build-all
+release: clean test build-all generate-release-notes
 	mkdir -p dist
 	cp bin/* dist/
 	cd dist && \
 	find . -type f -name "${BINARY_NAME}*" | xargs shasum -a 256 > checksums.txt
+
+# Generate release notes
+.PHONY: generate-release-notes
+generate-release-notes:
+	@TAG="v${VERSION}"; \
+	echo "Generating release notes for $$TAG"; \
+	./scripts/generate-release-notes.sh "$$TAG"; \
+	./scripts/format-release-notes.sh "$$TAG"; \
+	cp "release-notes/$$TAG/GITHUB_RELEASE.md" GITHUB_RELEASE_NOTES.md; \
+	echo "Release notes generated successfully"
 
 # Tag a new release
 .PHONY: tag

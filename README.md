@@ -53,6 +53,9 @@ make build-all
 ./bin/mathreleaser 5 3
 
 # Specify an operation
+./bin/mathreleaser -op=subtract 5 3
+./bin/mathreleaser -op=multiply 5 3
+./bin/mathreleaser -op=divide 5 3
 ```
 
 ### Git Hooks
@@ -75,10 +78,8 @@ mkdir -p .git/hooks
 cp .githooks/* .git/hooks/
 chmod +x .git/hooks/*
 ```
-./bin/mathreleaser -op=subtract 5 3
-./bin/mathreleaser -op=multiply 5 3
-./bin/mathreleaser -op=divide 5 3
 
+```bash
 # Show version information
 ./bin/mathreleaser -version
 ```
@@ -89,7 +90,7 @@ This repository uses a structured changelog process to track changes and generat
 
 ### How It Works
 
-1. **Adding Changes**: When making a change, create a new file in the `.changelog` directory with a unique name (e.g., `001.txt`).
+1. **Adding Changes**: When making a change, create a new file in the `.changelog` directory with a unique name matching the PR (e.g., `pr-1.txt`).
 
 2. **Changelog Format**: Each changelog file should contain one or more sections using this format:
 

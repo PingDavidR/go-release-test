@@ -194,3 +194,7 @@ mv "$TEMP_ADOC_FILE" "$ASCIIDOC_OUTPUT_FILE"
 
 echo "GitHub release notes generated in $GITHUB_OUTPUT_FILE"
 echo "AsciiDoc release notes generated in $ASCIIDOC_OUTPUT_FILE"
+
+# Generate the formatted release notes files
+echo "Generating formatted release notes files..."
+"$(dirname "$0")/format-release-notes.sh" "$VERSION"
