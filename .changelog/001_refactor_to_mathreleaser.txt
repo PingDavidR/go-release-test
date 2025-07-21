@@ -1,5 +1,0 @@
-# Changelog Entry for Refactoring from gorelease to mathreleaser
-
-release-note:enhancement
-Refactored project name from 'gorelease' to 'mathreleaser' to better reflect the mathematical operations performed by the application. 
-This change includes updating all references in the codebase, Makefile, GitHub workflows, and documentation.

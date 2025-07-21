@@ -1,3 +1,0 @@
-```release-note:enhancement
-Removed obsolete gorelease folder after renaming project to mathreleaser
-```

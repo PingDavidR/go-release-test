@@ -1,3 +1,0 @@
-```release-note:enhancement
-Renamed package from gorelease to mathreleaser to better reflect its mathematical operations
-```
