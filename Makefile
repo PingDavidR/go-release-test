@@ -131,9 +131,19 @@ govulncheck:
 	$(call ensure_tool,govulncheck,go install golang.org/x/vuln/cmd/govulncheck@latest)
 	govulncheck ./...
 
+# Quick lint check (for pre-push hook)
+.PHONY: quick-check
+quick-check: fmt vet lint lint-all-shell
+	@echo "✅ Quick checks passed!"
+
+# Full check including security and tests (for manual use)
+.PHONY: full-check
+full-check: quick-check gosec govulncheck test
+	@echo "✅ Full checks passed!"
+
 # Developer check - run before submitting PR
 .PHONY: devcheck
-devcheck: fmt vet lint gosec govulncheck test lint-all-shell
+devcheck: full-check
 	@echo "✅ All developer checks passed! Ready to submit PR."
 
 # Check scripts with shellcheck
