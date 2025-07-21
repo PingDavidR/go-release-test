@@ -2,9 +2,9 @@
 #
 # Script to create a changelog entry for a PR
 #
-# Usage: ./create-changelog.sh <pr-number> <change-type> <message>
+# Usage: ./create-changelog.sh <pr-number> <change-type> <message> [<jira-ticket>]
 #
-# Example: ./create-changelog.sh 123 feature "Added new feature X"
+# Example: ./create-changelog.sh 123 feature "Added new feature X" CDI-456
 #
 # Change types:
 #   - breaking-change
@@ -19,7 +19,7 @@ set -euo pipefail
 
 # Check if the required arguments are provided
 if [ $# -lt 3 ]; then
-  echo "Usage: $0 <pr-number> <change-type> <message>"
+  echo "Usage: $0 <pr-number> <change-type> <message> [<jira-ticket>]"
   echo ""
   echo "Change types:"
   echo "  - breaking-change"
@@ -30,15 +30,40 @@ if [ $# -lt 3 ]; then
   echo "  - security"
   echo "  - deprecation"
   echo ""
-  echo "Example: $0 123 feature \"Added new feature X\""
+  echo "Example: $0 123 feature \"Added new feature X\" CDI-456"
   exit 1
 fi
 
 PR_NUMBER="$1"
 CHANGE_TYPE="$2"
 MESSAGE="$3"
+JIRA_TICKET="${4:-}"  # Optional Jira ticket
 CHANGELOG_DIR=".changelog"
 CHANGELOG_FILE="${CHANGELOG_DIR}/pr-${PR_NUMBER}.txt"
+
+# Validate Jira ticket if provided
+if [ -n "$JIRA_TICKET" ]; then
+  if ! [[ "$JIRA_TICKET" =~ ^(CDI|PDI)-[0-9]+$ ]]; then
+    echo "Error: Invalid Jira ticket format. Must be CDI-## or PDI-##"
+    exit 1
+  fi
+fi
+
+# If no Jira ticket was provided, prompt for one
+if [ -z "$JIRA_TICKET" ]; then
+  read -r -p "Enter Jira ticket (format CDI-## or PDI-##, leave empty if none): " JIRA_TICKET
+  
+  # Validate the Jira ticket if entered
+  if [ -n "$JIRA_TICKET" ] && ! [[ "$JIRA_TICKET" =~ ^(CDI|PDI)-[0-9]+$ ]]; then
+    echo "Error: Invalid Jira ticket format. Must be CDI-## or PDI-##"
+    exit 1
+  fi
+fi
+
+# If Jira ticket is provided, add it to the message
+if [ -n "$JIRA_TICKET" ]; then
+  MESSAGE="$MESSAGE $JIRA_TICKET"
+fi
 
 # Check if message exceeds 95 characters
 if [ ${#MESSAGE} -gt 95 ]; then

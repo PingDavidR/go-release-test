@@ -73,7 +73,7 @@ if grep -q "== FEATURES" "$ASCIIDOC_INPUT_FILE"; then
   grep -A 100 "== FEATURES" "$ASCIIDOC_INPUT_FILE" \
     | awk '/^==/{ if (p) {exit}; p=1; next} p' \
     | grep -v "^$" \
-    | sed 's/\* //' >>"$GITHUB_OUTPUT_FILE" || true
+    | sed 's/^* //' >>"$GITHUB_OUTPUT_FILE" || true
   echo "" >>"$GITHUB_OUTPUT_FILE"
 fi
 
@@ -82,7 +82,7 @@ if grep -q "== ENHANCEMENTS" "$ASCIIDOC_INPUT_FILE"; then
   grep -A 100 "== ENHANCEMENTS" "$ASCIIDOC_INPUT_FILE" \
     | awk '/^==/{ if (p) {exit}; p=1; next} p' \
     | grep -v "^$" \
-    | sed 's/\* //' >>"$GITHUB_OUTPUT_FILE" || true
+    | sed 's/^* //' >>"$GITHUB_OUTPUT_FILE" || true
   echo "" >>"$GITHUB_OUTPUT_FILE"
 fi
 
@@ -91,7 +91,7 @@ if grep -q "== NOTES" "$ASCIIDOC_INPUT_FILE"; then
   grep -A 100 "== NOTES" "$ASCIIDOC_INPUT_FILE" \
     | awk '/^==/{ if (p) {exit}; p=1; next} p' \
     | grep -v "^$" \
-    | sed 's/\* //' >>"$GITHUB_OUTPUT_FILE" || true
+    | sed 's/^* //' >>"$GITHUB_OUTPUT_FILE" || true
   echo "" >>"$GITHUB_OUTPUT_FILE"
 fi
 
@@ -100,7 +100,7 @@ if grep -q "== BUG FIXES" "$ASCIIDOC_INPUT_FILE"; then
   grep -A 100 "== BUG FIXES" "$ASCIIDOC_INPUT_FILE" \
     | awk '/^==/{ if (p) {exit}; p=1; next} p' \
     | grep -v "^$" \
-    | sed 's/\* //' >>"$GITHUB_OUTPUT_FILE" || true
+    | sed 's/^* //' >>"$GITHUB_OUTPUT_FILE" || true
   echo "" >>"$GITHUB_OUTPUT_FILE"
 fi
 
@@ -109,7 +109,7 @@ if grep -q "== SECURITY" "$ASCIIDOC_INPUT_FILE"; then
   grep -A 100 "== SECURITY" "$ASCIIDOC_INPUT_FILE" \
     | awk '/^==/{ if (p) {exit}; p=1; next} p' \
     | grep -v "^$" \
-    | sed 's/\* //' >>"$GITHUB_OUTPUT_FILE" || true
+    | sed 's/^* //' >>"$GITHUB_OUTPUT_FILE" || true
   echo "" >>"$GITHUB_OUTPUT_FILE"
 fi
 

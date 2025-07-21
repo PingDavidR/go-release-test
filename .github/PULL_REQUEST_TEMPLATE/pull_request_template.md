@@ -10,11 +10,12 @@
 Have you added a changelog entry? The changelog file should be in the .changelog directory.
 Example format:
 ```release-note:feature
-Added new feature X for Y
+Added new feature X for Y CDI-123
 ```
+Note: Include your Jira ticket (CDI-## or PDI-##) at the end of the description.
 -->
 
-- [ ] I've added a changelog entry in the `.changelog` directory
+- [ ] I've added a changelog entry in the `.changelog` directory with the appropriate Jira ticket
 
 ## Testing
 
