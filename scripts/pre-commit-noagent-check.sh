@@ -43,7 +43,7 @@ fi
 if [ "$LOOKS_AUTOMATED" -eq 1 ]; then
   for file in $STAGED_FILES; do
     for pattern in $PROTECTED_FILES; do
-      if [[ "$file" == "$pattern" ]] || [[ "$file" == $(eval echo "$pattern") ]]; then
+      if [[ $file == "$pattern" ]] || [[ $file == $(eval echo "$pattern") ]]; then
         echo "Error: Protected file '$file' modified in what appears to be an automated commit."
         echo "If this is a human edit, you can:"
         echo "  1. Add [HUMAN EDIT] to your commit message"
@@ -61,7 +61,7 @@ for file in $STAGED_FILES; do
   if [ ! -f "$file" ] || file "$file" | grep -q "binary"; then
     continue
   fi
-  
+
   # Check for NOAGENT header in file content
   if grep -q "NOAGENT:" "$file"; then
     if [ "$LOOKS_AUTOMATED" -eq 1 ]; then
