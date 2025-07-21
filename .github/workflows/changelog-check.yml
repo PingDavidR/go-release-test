@@ -115,17 +115,14 @@ jobs:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
             const prNumber = ${{ steps.pr.outputs.number }};
+            const message = "✅ I've automatically created a changelog entry for this PR in `.changelog/pr-" + prNumber + ".txt`.\n\n" +
+                            "Please review and update the changelog entry if needed to better describe the changes in this PR. You can edit the file directly from GitHub or in your local repository.\n\n" +
+                            "**Important:** Make sure your changelog entry includes a valid Jira ticket (CDI-## or PDI-##) at the end of the description. This is required for the release notes format.\n\n" +
+                            "The changelog entry is used to generate release notes when a new version is released.";
             
             github.rest.issues.createComment({
               owner: context.repo.owner,
               repo: context.repo.repo,
               issue_number: prNumber,
-              body: |
-                ✅ I've automatically created a changelog entry for this PR in `.changelog/pr-${prNumber}.txt`.
-                
-                Please review and update the changelog entry if needed to better describe the changes in this PR. You can edit the file directly from GitHub or in your local repository.
-                
-                **Important:** Make sure your changelog entry includes a valid Jira ticket (CDI-## or PDI-##) at the end of the description. This is required for the release notes format.
-                
-                The changelog entry is used to generate release notes when a new version is released.
+              body: message
             });
