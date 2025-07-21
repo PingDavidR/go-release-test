@@ -6,6 +6,11 @@ BUILD_DATE=$(shell date -u '+%Y-%m-%d %H:%M:%S')
 LDFLAGS=-ldflags "-X github.com/PingDavidR/go-release-test/pkg/version.Version=${VERSION} -X github.com/PingDavidR/go-release-test/pkg/version.GitCommit=${GIT_COMMIT} -X 'github.com/PingDavidR/go-release-test/pkg/version.BuildDate=${BUILD_DATE}'"
 PLATFORMS=darwin/amd64 darwin/arm64 linux/amd64 linux/arm64 windows/amd64
 
+# Function to ensure required tools are installed
+define ensure_tool
+	@command -v $(1) >/dev/null 2>&1 || { echo "$(1) not found. Installing..."; $(2); }
+endef
+
 # Default target
 .PHONY: all
 all: clean build test
@@ -117,44 +122,48 @@ lint-shell:
 # Run security checks on Go code
 .PHONY: gosec
 gosec:
-	@command -v gosec >/dev/null 2>&1 || { echo "gosec not found. Installing..."; go install github.com/securego/gosec/v2/cmd/gosec@latest; }
+	$(call ensure_tool,gosec,go install github.com/securego/gosec/v2/cmd/gosec@latest)
 	gosec -quiet ./...
 
 # Run dependency vulnerability check
 .PHONY: govulncheck
 govulncheck:
-	@command -v govulncheck >/dev/null 2>&1 || { echo "govulncheck not found. Installing..."; go install golang.org/x/vuln/cmd/govulncheck@latest; }
+	$(call ensure_tool,govulncheck,go install golang.org/x/vuln/cmd/govulncheck@latest)
 	govulncheck ./...
+
+# Full check including security and tests (for manual use)
+.PHONY: full-check
+full-check: quick-check gosec govulncheck test
+	@echo "✅ Full checks passed!"
 
 # Developer check - run before submitting PR
 .PHONY: devcheck
-devcheck: fmt vet lint gosec govulncheck test lint-all-shell
+devcheck: fmt vet lint lint-all-shell
 	@echo "✅ All developer checks passed! Ready to submit PR."
+
+# Check scripts with shellcheck
+.PHONY: shellcheck-scripts
+shellcheck-scripts:
+	@echo "Running shellcheck on all shell scripts..."
+	$(call ensure_tool,shellcheck,sudo apt-get update && sudo apt-get install -y shellcheck)
+	@for script in $$(find . -name "*.sh" -type f -o -type f ! -path "*/.*" ! -path "*/vendor/*" ! -path "*/node_modules/*" -perm +111 -exec grep -l '^\#\!/bin/bash\|^\#\!/usr/bin/env bash' {} \; 2>/dev/null | sort -u); do \
+		echo "Checking $$script"; \
+		shellcheck -x "$$script" || exit 1; \
+	done
+
+# Check scripts with shfmt
+.PHONY: shfmt-scripts
+shfmt-scripts:
+	@echo "Running shfmt on all shell scripts..."
+	$(call ensure_tool,shfmt,go install mvdan.cc/sh/v3/cmd/shfmt@latest)
+	@for script in $$(find . -name "*.sh" -type f -o -type f ! -path "*/.*" ! -path "*/vendor/*" ! -path "*/node_modules/*" -perm +111 -exec grep -l '^\#\!/bin/bash\|^\#\!/usr/bin/env bash' {} \; 2>/dev/null | sort -u); do \
+		echo "Checking $$script"; \
+		shfmt -i 2 -ci -bn -s -d "$$script" || exit 1; \
+	done
 
 # Lint all shell scripts (shellcheck and shfmt)
 .PHONY: lint-all-shell
-lint-all-shell:
-	@echo "Running shellcheck on all shell scripts..."
-	@command -v shellcheck >/dev/null 2>&1 || { echo "shellcheck not found. Installing..."; sudo apt-get update && sudo apt-get install -y shellcheck; }
-	SCRIPTS=$(shell find . -name "*.sh" -type f | sort); \
-	SCRIPTS="$$SCRIPTS $(shell find . -type f ! -path "*/.*" ! -path "*/vendor/*" ! -path "*/node_modules/*" -perm +111 -exec grep -l '^\#\!/bin/bash\|^\#\!/usr/bin/env bash' {} \; 2>/dev/null | sort -u || true)"; \
-	for script in $$SCRIPTS; do \
-	  if [ -n "$$script" ]; then \
-		echo "Checking $$script"; \
-		shellcheck -x "$$script" || exit 1; \
-	  fi; \
-	done
-
-	@echo "Running shfmt on all shell scripts..."
-	@command -v shfmt >/dev/null 2>&1 || { echo "shfmt not found. Installing..."; go install mvdan.cc/sh/v3/cmd/shfmt@latest; }
-	SCRIPTS=$(shell find . -name "*.sh" -type f | sort); \
-	SCRIPTS="$$SCRIPTS $(shell find . -type f ! -path "*/.*" ! -path "*/vendor/*" ! -path "*/node_modules/*" -perm +111 -exec grep -l '^\#\!/bin/bash\|^\#\!/usr/bin/env bash' {} \; 2>/dev/null | sort -u || true)"; \
-	for script in $$SCRIPTS; do \
-	  if [ -n "$$script" ]; then \
-		echo "Checking $$script"; \
-		shfmt -i 2 -ci -bn -s -d "$$script" || exit 1; \
-	  fi; \
-	done
+lint-all-shell: shellcheck-scripts shfmt-scripts
 
 # Generate documentation
 .PHONY: docs
