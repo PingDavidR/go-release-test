@@ -3,6 +3,7 @@
 # This script processes a release notes AsciiDoc file and generates:
 # 1. GitHub release notes (without header, commit hash as link)
 # 2. Human-friendly release notes (with header and sections)
+# Updated with proper spacing for redirect operators
 
 set -euo pipefail
 
