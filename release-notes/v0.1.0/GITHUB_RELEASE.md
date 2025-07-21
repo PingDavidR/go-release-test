@@ -1,5 +1,6 @@
 Added basic calculator functionality with Add, Subtract, Multiply, and Divide operations.
 
+Improved error handling for division by zero.
 
 Updated Go module dependencies to latest versions.
 
