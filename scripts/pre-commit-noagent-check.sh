@@ -1,19 +1,5 @@
 #!/bin/bash
-# NOAGENT: This file should n# Only check for protected file changes if commit looks automated
-if [ "$LOOKS_AUTOMATED" -eq 1 ]; then
-  for file in $STAGED_FILES; do
-    for pattern in $PROTECTED_FILES; do
-      if [[ "$file" == "$pattern" ]] || [[ "$file" == $(eval echo "$pattern") ]]; then
-        echo "Error: Protected file '$file' modified in what appears to be an automated commit."
-        echo "If this is a human edit, you can:"
-        echo "  1. Add [HUMAN EDIT] to your commit message"
-        echo "  2. Set HUMAN_EDIT=1 environment variable when committing"
-        echo "  3. Temporarily remove the file from .noagent if appropriate"
-        exit 1
-      fi
-    done
-  done
-fiby automated processes
+# NOAGENT: This file should not be modified by automated processes
 
 set -e
 
@@ -57,7 +43,7 @@ fi
 if [ "$LOOKS_AUTOMATED" -eq 1 ]; then
   for file in $STAGED_FILES; do
     for pattern in $PROTECTED_FILES; do
-      if [[ $file == $pattern ]] || [[ $file == $(eval echo $pattern) ]]; then
+      if [[ "$file" == "$pattern" ]] || [[ "$file" == $(eval echo "$pattern") ]]; then
         echo "Error: Protected file '$file' modified in what appears to be an automated commit."
         echo "If this is a human edit, you can:"
         echo "  1. Add [HUMAN EDIT] to your commit message"
@@ -84,4 +70,6 @@ for file in $STAGED_FILES; do
       exit 1
     fi
   fi
-doneexit 0
+done
+
+exit 0
