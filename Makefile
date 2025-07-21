@@ -33,11 +33,17 @@ clean:
 
 # Create a new release
 .PHONY: release
-release: clean test build-all
+release: clean test build-all generate-release-notes
 	mkdir -p dist
 	cp bin/* dist/
 	cd dist && \
 	find . -type f -name "${BINARY_NAME}*" | xargs shasum -a 256 > checksums.txt
+
+# Generate release notes
+.PHONY: generate-release-notes
+generate-release-notes:
+	@echo "Generating release notes for v${VERSION}..."
+	@./scripts/generate-release-notes.sh v${VERSION}
 
 # Tag a new release
 .PHONY: tag

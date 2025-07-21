@@ -34,6 +34,11 @@ jobs:
       - name: Get dependencies
         run: go mod download
       
+      - name: Generate Release Notes
+        run: |
+          TAG=${GITHUB_REF#refs/tags/}
+          ./scripts/generate-release-notes.sh $TAG
+          
       - name: Build all platforms
         run: make build-all
       
@@ -53,6 +58,6 @@ jobs:
           # Create a release
           gh release create "$TAG" \
             --title "Release $TAG" \
-            --notes-file GITHUB_RELEASE_NOTES.md \
+            --notes-file "release-notes/$TAG/GITHUB_RELEASE.md" \
             --draft=false \
             dist/*
