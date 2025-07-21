@@ -19,6 +19,8 @@ jobs:
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
+          ref: ${{ github.head_ref }}  # Explicitly checkout the PR branch
+          token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Get PR number
         id: pr
@@ -72,6 +74,26 @@ jobs:
             MESSAGE="Enhancement from PR #${PR_NUMBER}: ${PR_TITLE}"
           fi
           
+          # Check if the PR title contains a Jira ticket reference (CDI-## or PDI-##)
+          if [[ "$PR_TITLE" =~ (CDI-[0-9]+|PDI-[0-9]+) ]]; then
+            JIRA_TICKET="${BASH_REMATCH[0]}"
+            # Remove the Jira ticket from the message to avoid duplication
+            MESSAGE=$(echo "$MESSAGE" | sed -E "s/(CDI-[0-9]+|PDI-[0-9]+)//g" | sed -E "s/^[[:space:]]+|[[:space:]]+$//g")
+            # Add the Jira ticket at the end
+            MESSAGE="$MESSAGE $JIRA_TICKET"
+          else
+            # If no Jira ticket is found, add a placeholder ticket
+            # This is just for demonstration, in real workflow you might want to make this optional
+            JIRA_TICKET="CDI-000"
+            MESSAGE="$MESSAGE $JIRA_TICKET"
+          fi
+          
+          # Truncate message to 95 characters if longer
+          if [ ${#MESSAGE} -gt 95 ]; then
+            MESSAGE="${MESSAGE:0:92}..."
+            echo "Message truncated to 95 characters"
+          fi
+          
           # Create the changelog file with template content
           echo '```release-note:'"${CHANGE_TYPE}" > "$CHANGELOG_FILE"
           echo "${MESSAGE}" >> "$CHANGELOG_FILE"
@@ -93,15 +115,14 @@ jobs:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
             const prNumber = ${{ steps.pr.outputs.number }};
+            const message = "✅ I've automatically created a changelog entry for this PR in `.changelog/pr-" + prNumber + ".txt`.\n\n" +
+                            "Please review and update the changelog entry if needed to better describe the changes in this PR. You can edit the file directly from GitHub or in your local repository.\n\n" +
+                            "**Important:** Make sure your changelog entry includes a valid Jira ticket (CDI-## or PDI-##) at the end of the description. This is required for the release notes format.\n\n" +
+                            "The changelog entry is used to generate release notes when a new version is released.";
             
             github.rest.issues.createComment({
               owner: context.repo.owner,
               repo: context.repo.repo,
               issue_number: prNumber,
-              body: |
-                ✅ I've automatically created a changelog entry for this PR in `.changelog/pr-${prNumber}.txt`.
-                
-                Please review and update the changelog entry if needed to better describe the changes in this PR. You can edit the file directly from GitHub or in your local repository.
-                
-                The changelog entry is used to generate release notes when a new version is released.
+              body: message
             });

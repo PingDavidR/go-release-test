@@ -1,0 +1,3 @@
+```release-note:bug
+Fixed issue: Fix Release Notes Format to Include Commit Links and Jira Tickets CDI-000
+```

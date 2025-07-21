@@ -26,13 +26,13 @@ You can also create a changelog entry manually using one of these methods:
 1. **Using the script**:
 
    ```bash
-   ./scripts/create-changelog.sh <PR-NUMBER> <CHANGE-TYPE> "Your change description"
+   ./scripts/create-changelog.sh <PR-NUMBER> <CHANGE-TYPE> "Your change description" [JIRA-TICKET]
    ```
 
    Example:
 
    ```bash
-   ./scripts/create-changelog.sh 123 feature "Added new calculator function"
+   ./scripts/create-changelog.sh 123 feature "Added new calculator function" CDI-456
    ```
 
 2. **Manually creating the file**:
@@ -40,11 +40,13 @@ You can also create a changelog entry manually using one of these methods:
 
    ```plaintext
    <triple backticks>release-note:feature
-   Your change description
+   Your change description [JIRA-TICKET]
    <triple backticks>
    ```
 
    (Replace `<triple backticks>` with three backtick characters)
+   
+   Make sure to include the Jira ticket (CDI-## or PDI-##) at the end of your description if applicable.
 
 ## Changelog File Format
 
@@ -65,11 +67,11 @@ The description text in each changelog entry must be 95 characters or less. This
 ## Example
 
 ```release-note:feature
-Added new calculator function `Multiply` that allows multiplication of two numbers.
+Added new calculator function `Multiply` that allows multiplication of two numbers. CDI-123
 ```
 
 ```release-note:bug
-Fixed issue where division by zero would cause the application to crash instead of returning an error.
+Fixed issue where division by zero would cause the application to crash instead of returning an error. PDI-456
 ```
 
 ## Release Process
@@ -84,8 +86,22 @@ Fixed issue where division by zero would cause the application to crash instead 
 The repository includes scripts for working with changelog files:
 
 - `scripts/create-changelog.sh` - Creates a new changelog entry for a PR
+
+   ```bash
+   ./scripts/create-changelog.sh <PR-NUMBER> <CHANGE-TYPE> "Your change description" [JIRA-TICKET]
+   ```
+
+   Example:
+
+   ```bash
+   ./scripts/create-changelog.sh 123 feature "Added new calculator function" CDI-456
+   ```
+
+   Note: Jira tickets must be in the format CDI-## or PDI-##. If not provided as an argument,  
+   the script will prompt for a Jira ticket.
+
 - `scripts/generate-release-notes.sh` - Generates two types of release notes:
-  1. `GITHUB_RELEASE_NOTES.md` with the format `<commit hash> <description> (PR #)` for GitHub releases
+  1. `GITHUB_RELEASE_NOTES.md` with the format `<commit hash link> <description> <PR# link> <Jira ticket>` for GitHub releases
   2. `release-notes/{version}/RELEASE_NOTES.adoc` with a human-readable AsciiDoc version
 - `scripts/archive-changelog.sh` - Archives changelog files after a release
 
