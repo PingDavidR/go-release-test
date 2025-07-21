@@ -9,7 +9,7 @@ import (
 // Version variables. These will be populated at build time.
 var (
 	// Version is the current version of the application.
-	Version = "0.1.0"
+	Version = "0.2.0"
 
 	// GitCommit is the git commit hash.
 	GitCommit = "unknown"
