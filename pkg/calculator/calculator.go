@@ -43,3 +43,8 @@ func SquareRoot(a float64) (float64, error) {
 	}
 	return math.Sqrt(a), nil
 }
+
+// Sin returns the sine of an angle (in radians).
+func Sin(a float64) float64 {
+	return math.Sin(a)
+}

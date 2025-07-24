@@ -146,3 +146,28 @@ func TestSquareRoot(t *testing.T) {
 		})
 	}
 }
+
+func TestSin(t *testing.T) {
+	tests := []struct {
+		name     string
+		input    float64
+		expected float64
+	}{
+		{"zero", 0, 0},
+		{"pi/2", 1.5707963267948966, 1},
+		{"pi", 3.141592653589793, 0},
+		{"3pi/2", 4.71238898038469, -1},
+		{"2pi", 6.283185307179586, 0},
+	}
+
+	const epsilon = 1e-9
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			got := Sin(tt.input)
+			if diff := got - tt.expected; diff < -epsilon || diff > epsilon {
+				t.Errorf("Sin(%v) = %v, want %v", tt.input, got, tt.expected)
+			}
+		})
+	}
+}
