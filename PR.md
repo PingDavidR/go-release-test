@@ -1,28 +1,23 @@
-# PR: Refine Release Notes Format
+# v0.3.0 Release
 
-This PR improves the release notes process to support two different formats:
+This PR includes changes for the v0.3.0 release of the mathreleaser project.
 
-## GitHub Release Format
+## Changes
 
-- Creates a simple GitHub release note (`GITHUB_RELEASE.md`) without headers
-- Only shows essential content (changes, enhancements, etc.)
-- Adds a clean commit hash link at the bottom
-- Formatted specifically for GitHub releases UI
-
-## Human-Readable Format
-
-- Creates a more detailed human-friendly release note (`HUMAN_RELEASE_NOTES.md`)
-- Includes proper headings and sections
-- Preserves all details from the original RELEASE_NOTES.adoc
-- Maintained in the repository for future reference
-
-## Changes Made
-
-- Added new `format-release-notes.sh` script to transform AsciiDoc to both formats
-- Updated the Makefile with a `generate-release-notes` target
-- Updated GitHub Actions workflow to use the new release notes format
-- Integrated this process with the existing release workflows
+- Added new Power function to perform exponentiation operations
+- Added new SquareRoot function to calculate square roots of numbers
+- Added comprehensive tests for new mathematical functions
+- Updated version number to 0.3.0
+- Added changelog entries for release notes
 
 ## Testing
 
-The script has been tested with the existing v0.1.0 release notes.
+All tests have been run and are passing. The new mathematical functions have been verified with various inputs, including edge cases.
+
+## Documentation
+
+Documentation has been updated to reflect the new functionality.
+
+## Notes
+
+This release follows the SemVer guidelines for a MINOR version update, as it adds new functionality in a backward-compatible manner.

@@ -94,3 +94,55 @@ func TestDivide(t *testing.T) {
 		})
 	}
 }
+
+func TestPower(t *testing.T) {
+	tests := []struct {
+		name     string
+		a, b     float64
+		expected float64
+	}{
+		{"positive_base_positive_exponent", 2, 3, 8},
+		{"positive_base_negative_exponent", 2, -1, 0.5},
+		{"negative_base_even_exponent", -2, 2, 4},
+		{"negative_base_odd_exponent", -2, 3, -8},
+		{"zero_base", 0, 5, 0},
+		{"any_base_zero_exponent", 5, 0, 1},
+		{"one_base_any_exponent", 1, 99, 1},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if got := Power(tt.a, tt.b); got != tt.expected {
+				t.Errorf("Power(%v, %v) = %v, want %v", tt.a, tt.b, got, tt.expected)
+			}
+		})
+	}
+}
+
+func TestSquareRoot(t *testing.T) {
+	tests := []struct {
+		name        string
+		a           float64
+		expected    float64
+		expectError bool
+	}{
+		{"positive", 4, 2, false},
+		{"zero", 0, 0, false},
+		{"negative", -4, 0, true},
+		{"perfect_square", 16, 4, false},
+		{"non_perfect_square", 2, 1.4142135623730951, false},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			got, err := SquareRoot(tt.a)
+			if (err != nil) != tt.expectError {
+				t.Errorf("SquareRoot(%v) error = %v, expectError %v", tt.a, err, tt.expectError)
+				return
+			}
+			if !tt.expectError && got != tt.expected {
+				t.Errorf("SquareRoot(%v) = %v, want %v", tt.a, got, tt.expected)
+			}
+		})
+	}
+}
