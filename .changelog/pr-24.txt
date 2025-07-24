@@ -1,3 +1,0 @@
-```release-note:enhancement
-Cleanup of redundant pipelines, only warn on protected files change CDI-0001
-```

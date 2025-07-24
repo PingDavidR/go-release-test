@@ -1,3 +1,0 @@
-```release-note:enhancement
-Enhancement: Refactor Makefile to reduce redundancy CDI-000
-```
