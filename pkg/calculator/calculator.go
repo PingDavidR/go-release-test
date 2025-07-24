@@ -53,3 +53,8 @@ func Sin(a float64) float64 {
 func Cos(a float64) float64 {
 	return math.Cos(a)
 }
+
+// Tan returns the tangent of an angle (in radians).
+func Tan(a float64) float64 {
+	return math.Tan(a)
+}
