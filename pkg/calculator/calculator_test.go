@@ -171,3 +171,28 @@ func TestSin(t *testing.T) {
 		})
 	}
 }
+
+func TestCos(t *testing.T) {
+	tests := []struct {
+		name     string
+		input    float64
+		expected float64
+	}{
+		{"zero", 0, 1},
+		{"pi/2", 1.5707963267948966, 0},
+		{"pi", 3.141592653589793, -1},
+		{"3pi/2", 4.71238898038469, 0},
+		{"2pi", 6.283185307179586, 1},
+	}
+
+	const epsilon = 1e-9
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			got := Cos(tt.input)
+			if diff := got - tt.expected; diff < -epsilon || diff > epsilon {
+				t.Errorf("Cos(%v) = %v, want %v", tt.input, got, tt.expected)
+			}
+		})
+	}
+}

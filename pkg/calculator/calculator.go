@@ -48,3 +48,8 @@ func SquareRoot(a float64) (float64, error) {
 func Sin(a float64) float64 {
 	return math.Sin(a)
 }
+
+// Cos returns the cosine of an angle (in radians).
+func Cos(a float64) float64 {
+	return math.Cos(a)
+}
