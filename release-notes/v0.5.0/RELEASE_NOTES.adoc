@@ -1,0 +1,15 @@
+= Release Notes for v0.5.0
+:toc:
+:toclevels: 3
+:sectnums:
+
+Release Date: 2025-07-24
+
+== FEATURES
+* [`b813b16a`](https://github.com/PingDavidR/go-release-test/commit/b813b16a) Added Tan function to the calculator package for calculating tangent of an angle in radians [#pr-27](https://github.com/PingDavidR/go-release-test/pull/pr-27)
+
+
+== ENHANCEMENTS
+* [`ff5e66a7`](https://github.com/PingDavidR/go-release-test/commit/ff5e66a7) Updated tests to include comprehensive test cases for the tangent function [#pr-27](https://github.com/PingDavidR/go-release-test/pull/pr-27)
+
+

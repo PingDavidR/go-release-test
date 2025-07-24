@@ -1,18 +1,17 @@
-# v0.3.0 Release
+# v0.5.0 Release - Add Tan Function
 
-This PR includes changes for the v0.3.0 release of the mathreleaser project.
+This PR includes changes for the v0.5.0 release of the mathreleaser project.
 
 ## Changes
 
-- Added new Power function to perform exponentiation operations
-- Added new SquareRoot function to calculate square roots of numbers
-- Added comprehensive tests for new mathematical functions
-- Updated version number to 0.3.0
-- Added changelog entries for release notes
+- Added new Tan function to calculate the tangent of an angle (in radians)
+- Added comprehensive tests for the new trigonometric function
+- Updated version number to 0.5.0
+- Added release notes for v0.5.0
 
 ## Testing
 
-All tests have been run and are passing. The new mathematical functions have been verified with various inputs, including edge cases.
+All tests have been run and are passing. The new tangent function has been verified with various inputs, including key angles like 0, π/4, 3π/4, π, 5π/4, and 7π/4.
 
 ## Documentation
 
