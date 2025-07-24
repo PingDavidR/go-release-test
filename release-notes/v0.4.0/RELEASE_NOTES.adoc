@@ -6,12 +6,12 @@
 Release Date: 2025-07-24
 
 == ENHANCEMENTS
-* [`a0d6faec`](https://github.com/PingDavidR/go-release-test/commit/a0d6faec) Enhancement: Refactor Makefile to reduce redundancy [#pr-23](https://github.com/PingDavidR/go-release-test/pull/pr-23) CDI-000
-* [`15a13c3a`](https://github.com/PingDavidR/go-release-test/commit/15a13c3a) Cleanup of redundant pipelines, only warn on protected files change [#pr-24](https://github.com/PingDavidR/go-release-test/pull/pr-24) CDI-0001
-* [`a34cd69d`](https://github.com/PingDavidR/go-release-test/commit/a34cd69d) Fixed release notes formatting to include commit hash links, PR links, and Jira tickets [#pr-fix-release-notes](https://github.com/PingDavidR/go-release-test/pull/pr-fix-release-notes) CDI-789
+* [`f4bfa600`](https://github.com/PingDavidR/go-release-test/commit/f4bfa600) Enhancement: Refactor Makefile to reduce redundancy [#pr-23](https://github.com/PingDavidR/go-release-test/pull/pr-23) CDI-000
+* [`099b6476`](https://github.com/PingDavidR/go-release-test/commit/099b6476) Cleanup of redundant pipelines, only warn on protected files change [#pr-24](https://github.com/PingDavidR/go-release-test/pull/pr-24) CDI-0001
+* [`75e0e9a4`](https://github.com/PingDavidR/go-release-test/commit/75e0e9a4) Fixed release notes formatting to include commit hash links, PR links, and Jira tickets [#pr-fix-release-notes](https://github.com/PingDavidR/go-release-test/pull/pr-fix-release-notes) CDI-789
 
 
 == BUG FIXES
-* [`aadd6ef8`](https://github.com/PingDavidR/go-release-test/commit/aadd6ef8) Fixed issue: Fix Release Notes Format to Include Commit Links and Jira Tickets [#pr-22](https://github.com/PingDavidR/go-release-test/pull/pr-22) CDI-000
+* [`9aed49f1`](https://github.com/PingDavidR/go-release-test/commit/9aed49f1) Fixed issue: Fix Release Notes Format to Include Commit Links and Jira Tickets [#pr-22](https://github.com/PingDavidR/go-release-test/pull/pr-22) CDI-000
 
 
