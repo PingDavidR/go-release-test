@@ -1,0 +1,17 @@
+= Release Notes for v0.3.0
+:toc:
+:toclevels: 3
+:sectnums:
+
+Release Date: 2025-07-24
+
+== ENHANCEMENTS
+* [`a7e1539b`](https://github.com/PingDavidR/go-release-test/commit/a7e1539b) Enhancement: Refactor Makefile to reduce redundancy [#pr-23](https://github.com/PingDavidR/go-release-test/pull/pr-23) CDI-000
+* [`8d2f1769`](https://github.com/PingDavidR/go-release-test/commit/8d2f1769) Cleanup of redundant pipelines, only warn on protected files change [#pr-24](https://github.com/PingDavidR/go-release-test/pull/pr-24) CDI-0001
+* [`7023caa9`](https://github.com/PingDavidR/go-release-test/commit/7023caa9) Fixed release notes formatting to include commit hash links, PR links, and Jira tickets [#pr-fix-release-notes](https://github.com/PingDavidR/go-release-test/pull/pr-fix-release-notes) CDI-789
+
+
+== BUG FIXES
+* [`6ffe60ac`](https://github.com/PingDavidR/go-release-test/commit/6ffe60ac) Fixed issue: Fix Release Notes Format to Include Commit Links and Jira Tickets [#pr-22](https://github.com/PingDavidR/go-release-test/pull/pr-22) CDI-000
+
+
