@@ -1,0 +1,3 @@
+```release-note:enhancement
+Fixed release notes formatting to include commit hash links, PR links, and Jira tickets CDI-789
+```

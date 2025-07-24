@@ -1,0 +1,13 @@
+## Features
+
+- Added Power function to the calculator package for exponentiation operations
+- Added SquareRoot function to the calculator package for calculating square roots
+
+## Enhancements
+
+- Updated tests to cover new mathematical operations
+- Improved code documentation for mathematical functions
+
+## PR Number
+
+25
