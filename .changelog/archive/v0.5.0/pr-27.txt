@@ -1,0 +1,11 @@
+```release-note:feature
+Added Tan function to the calculator package for calculating tangent of an angle in radians
+```
+
+```release-note:enhancement
+Updated tests to include comprehensive test cases for the tangent function
+```
+
+## PR Number
+
+27
