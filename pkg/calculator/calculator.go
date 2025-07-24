@@ -1,7 +1,10 @@
 // Package calculator provides basic arithmetic operations.
 package calculator
 
-import "errors"
+import (
+	"errors"
+	"math"
+)
 
 // Add returns the sum of two numbers.
 func Add(a, b float64) float64 {
@@ -25,4 +28,18 @@ func Divide(a, b float64) (float64, error) {
 		return 0, errors.New("division by zero")
 	}
 	return a / b, nil
+}
+
+// Power returns the result of raising a to the power of b.
+func Power(a, b float64) float64 {
+	return math.Pow(a, b)
+}
+
+// SquareRoot returns the square root of a number.
+// Returns an error if the number is negative.
+func SquareRoot(a float64) (float64, error) {
+	if a < 0 {
+		return 0, errors.New("square root of negative number")
+	}
+	return math.Sqrt(a), nil
 }
