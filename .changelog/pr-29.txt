@@ -1,0 +1,3 @@
+```release-note:feature
+Added feature: Add tangent function to calculator CDI-000
+```
