@@ -20,6 +20,20 @@ jobs:
         id: tag
         run: echo "tag=${GITHUB_REF#refs/tags/}" >> $GITHUB_OUTPUT
 
+      - name: Set up Go
+        uses: actions/setup-go@v4
+        with:
+          go-version: '1.20'
+
+      - name: Build Go binaries
+        run: make build-all
+      
+      - name: Create checksums
+        run: |
+          mkdir -p dist
+          cp bin/* dist/
+          cd dist && find . -type f -name "mathreleaser*" | xargs shasum -a 256 > checksums.txt
+
       - name: Check if release notes exist
         id: check_files
         run: |
@@ -30,10 +44,11 @@ jobs:
           fi
 
       - name: Create GitHub Release
-        uses: softprops/action-gh-release@v1
+        uses: ncipollo/release-action@v1
         with:
           name: "Release ${{ steps.tag.outputs.tag }}"
-          body_path: ${{ steps.check_files.outputs.release_notes_exist == 'true' && format('release-notes/{0}/GITHUB_RELEASE.md', steps.tag.outputs.tag) || '' }}
+          bodyFile: ${{ steps.check_files.outputs.release_notes_exist == 'true' && format('release-notes/{0}/GITHUB_RELEASE.md', steps.tag.outputs.tag) || '' }}
+          artifacts: "dist/*"
           draft: false
           prerelease: false
           token: ${{ secrets.GITHUB_TOKEN }}
