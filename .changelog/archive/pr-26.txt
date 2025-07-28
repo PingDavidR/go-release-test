@@ -1,0 +1,11 @@
+## Features
+
+- Added Sin function to the calculator package for computing the sine of an angle in radians
+
+## Testing
+
+- Added table-driven tests for the Sin function covering key angles
+
+## PR Number
+
+26
