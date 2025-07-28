@@ -1,0 +1,3 @@
+```release-note:feature
+Added feature: Enhance EnsureDir tests with additional test cases CDI-000
+```

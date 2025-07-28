@@ -3,6 +3,7 @@ package helpers
 import (
 	"os"
 	"path/filepath"
+	"runtime"
 	"testing"
 )
 
@@ -55,6 +56,29 @@ func TestEnsureDir(t *testing.T) {
 		{"nested_dir", filepath.Join(tmpDir, "test2", "nested"), false},
 		{"deep_nested_dir", filepath.Join(tmpDir, "test3", "nested1", "nested2", "nested3"), false},
 		{"existing_dir", filepath.Join(tmpDir, "test4"), false}, // Will create first then test again
+		// Empty path is not valid with os.MkdirAll, it should be "." for current directory
+	}
+
+	// Add a test for permission issues if not on Windows
+	if runtime.GOOS != "windows" {
+		// Try to create a directory with restricted permissions for testing
+		// This might not work as expected depending on environment, so we'll handle errors
+		restrictedDir := filepath.Join(tmpDir, "restricted")
+		if err := os.MkdirAll(restrictedDir, 0750); err != nil {
+			t.Logf("Failed to create restricted directory: %v", err)
+		} else {
+			// Try to change permissions to read-only for the directory
+			if err := os.Chmod(restrictedDir, 0500); err != nil {
+				t.Logf("Failed to set directory permissions: %v", err)
+			} else {
+				testPath := filepath.Join(restrictedDir, "noperm")
+				tests = append(tests, struct {
+					name      string
+					path      string
+					shouldErr bool
+				}{"permission_issue", testPath, true})
+			}
+		}
 	}
 
 	for _, tt := range tests {
@@ -70,12 +94,25 @@ func TestEnsureDir(t *testing.T) {
 				if _, err := os.Stat(tt.path); os.IsNotExist(err) {
 					t.Errorf("EnsureDir(%v) did not create directory", tt.path)
 				}
+				
+				// Check that the directory has the correct permissions (0750 is the default in the function)
+				info, err := os.Stat(tt.path)
+				if err != nil {
+					t.Errorf("Failed to get file info for %v: %v", tt.path, err)
+				} else {
+					// The actual permissions are dependent on the umask, so we just check that it's a directory
+					if !info.IsDir() {
+						t.Errorf("EnsureDir(%v) created a file, not a directory", tt.path)
+					}
+				}
 			}
 
-			// Test idempotence - calling again should not error
-			err = EnsureDir(tt.path)
-			if err != nil {
-				t.Errorf("EnsureDir(%v) second call error = %v", tt.path, err)
+			// Test idempotence - calling again should not error, unless it's the permission test
+			if !tt.shouldErr {
+				err = EnsureDir(tt.path)
+				if err != nil {
+					t.Errorf("EnsureDir(%v) second call error = %v", tt.path, err)
+				}
 			}
 		})
 	}
