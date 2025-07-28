@@ -1,0 +1,3 @@
+```release-note:feature
+Added SquareRoot function to the calculator package for calculating square roots
+```

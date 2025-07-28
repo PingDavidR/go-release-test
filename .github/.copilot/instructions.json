@@ -1,0 +1,51 @@
+{
+  "schemaVersion": "1.0",
+  "repository": {
+    "purpose": "Go release process testing",
+    "protected_files": [
+      "scripts/*.sh",
+      ".github/copilot-instructions.md",
+      "Files with NOAGENT: header"
+    ]
+  },
+  "development": {
+    "workflow": "branch → PR → review → merge",
+    "use_mcp_servers": true,
+    "go_version": ">=1.22",
+    "use_gofmt": true
+  },
+  "code_standards": {
+    "style_guide": "https://golang.org/doc/effective_go",
+    "test_coverage": 80,
+    "test_approach": "table-driven",
+    "security_tools": [
+      "github/codeql-action",
+      "securego/gosec"
+    ]
+  },
+  "versioning": {
+    "standard": "SemVer",
+    "major": "incompatible API changes",
+    "minor": "new backward-compatible features",
+    "patch": "backward-compatible bug fixes"
+  },
+  "release_process": {
+    "branch_strategy": "feature branches from main",
+    "packaging": "goreleaser",
+    "ci_tools": "GitHub Actions",
+    "artifacts": {
+      "platforms": ["linux", "macos", "windows", "docker"],
+      "signed": true,
+      "checksums": true
+    }
+  },
+  "module_management": [
+    "Keep go.mod and go.sum clean",
+    "Minimize dependencies",
+    "Update regularly"
+  ],
+  "documentation": [
+    "Document all exported elements",
+    "Update README.md for new features"
+  ]
+}

@@ -1,0 +1,3 @@
+```release-note:enhancement
+Added table-driven tests for the Sin function covering key angles
+```
