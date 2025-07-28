@@ -1,0 +1,3 @@
+```release-note:bug
+Fixed issue: Fix: Add Go binary builds to GitHub releases CDI-000
+```
