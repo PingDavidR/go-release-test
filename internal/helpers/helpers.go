@@ -24,10 +24,13 @@ func FormatNumber(n float64) string {
 	return string(result) + "." + decimalPart
 }
 
+// Variable that holds the exit function, allowing it to be mocked in tests
+var osExit = os.Exit
+
 // PrintError prints an error message to stderr and exits with code 1.
 func PrintError(format string, args ...interface{}) {
 	fmt.Fprintf(os.Stderr, format+"\n", args...)
-	os.Exit(1)
+	osExit(1)
 }
 
 // EnsureDir ensures that a directory exists.

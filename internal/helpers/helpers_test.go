@@ -6,6 +6,14 @@ import (
 	"testing"
 )
 
+// Original exit function - will be restored after tests
+var originalOsExit = osExit
+
+// Restore original exit function after tests
+func restoreOsExit() {
+	osExit = originalOsExit
+}
+
 func TestFormatNumber(t *testing.T) {
 	tests := []struct {
 		name     string
@@ -73,22 +81,78 @@ func TestEnsureDir(t *testing.T) {
 	}
 }
 
-// We don't test PrintError since it calls os.Exit(1), which would terminate the test.
-// To test this properly, we'd need to refactor the function to make it more testable,
-// for example by accepting an io.Writer for output and a function for exiting.
-// Here's a comment explaining this decision:
-/*
-PrintError is not tested because it calls os.Exit(1), which would terminate the test process.
-To make this function testable, we could refactor it to:
-1. Accept an io.Writer parameter for the output
-2. Accept a function parameter for the exit behavior
-3. Return an error instead of exiting
+// TestPrintError tests the PrintError function by temporarily replacing stderr and os.Exit
+func TestPrintError(t *testing.T) {
+	// Save original stderr and restore after test
+	originalStderr := os.Stderr
+	defer func() { os.Stderr = originalStderr }()
 
-Example of a more testable version:
-```go
-func PrintError(w io.Writer, exitFunc func(int), format string, args ...interface{}) {
-    fmt.Fprintf(w, format+"\n", args...)
-    exitFunc(1)
+	// Save original exit function and restore after test
+	defer restoreOsExit()
+
+	// Create a pipe to capture stderr output
+	r, w, _ := os.Pipe()
+	os.Stderr = w
+
+	// Track if exit was called and with what code
+	var exitCode int
+	osExit = func(code int) {
+		exitCode = code
+	}
+
+	// Test cases
+	tests := []struct {
+		name         string
+		format       string
+		args         []interface{}
+		expectedText string
+		expectedCode int
+	}{
+		{
+			name:         "simple_message",
+			format:       "Error: %s",
+			args:         []interface{}{"test error"},
+			expectedText: "Error: test error\n",
+			expectedCode: 1,
+		},
+		{
+			name:         "multiple_args",
+			format:       "Error: %s, code: %d",
+			args:         []interface{}{"test error", 42},
+			expectedText: "Error: test error, code: 42\n",
+			expectedCode: 1,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			// Reset exitCode
+			exitCode = 0
+
+			// Call the function
+			PrintError(tt.format, tt.args...)
+
+			// Close the write end of the pipe to flush all data
+			w.Close()
+
+			// Read output from pipe
+			var buf = make([]byte, 1024)
+			n, _ := r.Read(buf)
+			output := string(buf[:n])
+
+			// Check if output matches expected
+			if output != tt.expectedText {
+				t.Errorf("PrintError() output = %q, want %q", output, tt.expectedText)
+			}
+
+			// Check if exit code is correct
+			if exitCode != tt.expectedCode {
+				t.Errorf("PrintError() exit code = %d, want %d", exitCode, tt.expectedCode)
+			}
+
+			// Reset stderr for next test
+			r, w, _ = os.Pipe()
+			os.Stderr = w
+		})
+	}
 }
-```
-*/
