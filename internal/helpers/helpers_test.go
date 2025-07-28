@@ -45,7 +45,7 @@ func TestEnsureDir(t *testing.T) {
 	// Create temporary directory for testing
 	tmpDir := filepath.Join(os.TempDir(), "mathreleaser-test")
 	defer os.RemoveAll(tmpDir) // Clean up after test
-	
+
 	tests := []struct {
 		name      string
 		path      string
@@ -64,14 +64,14 @@ func TestEnsureDir(t *testing.T) {
 				t.Errorf("EnsureDir(%v) error = %v, shouldErr %v", tt.path, err, tt.shouldErr)
 				return
 			}
-			
+
 			// Verify directory exists
 			if !tt.shouldErr {
 				if _, err := os.Stat(tt.path); os.IsNotExist(err) {
 					t.Errorf("EnsureDir(%v) did not create directory", tt.path)
 				}
 			}
-			
+
 			// Test idempotence - calling again should not error
 			err = EnsureDir(tt.path)
 			if err != nil {
