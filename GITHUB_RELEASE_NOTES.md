@@ -1,3 +1,8 @@
-# Release Notes for v0.4.0
+# Release Notes for v0.5.0
 
-[`31e200a`](https://github.com/PingDavidR/go-release-test/commit/31e200a) Add Sin function to calculator and tests.
+[`caa87fe7`](https://github.com/PingDavidR/go-release-test/commit/caa87fe7) Updated tests to cover new mathematical operations [#pr-25-enhancement-1](https://github.com/PingDavidR/go-release-test/pull/pr-25-enhancement-1) 
+[`be7d2944`](https://github.com/PingDavidR/go-release-test/commit/be7d2944) Improved code documentation for mathematical functions [#pr-25-enhancement-2](https://github.com/PingDavidR/go-release-test/pull/pr-25-enhancement-2) 
+[`0837baad`](https://github.com/PingDavidR/go-release-test/commit/0837baad) Added Power function to the calculator package for exponentiation operations [#pr-25-feature-1](https://github.com/PingDavidR/go-release-test/pull/pr-25-feature-1) 
+[`24cc03a1`](https://github.com/PingDavidR/go-release-test/commit/24cc03a1) Added SquareRoot function to the calculator package for calculating square roots [#pr-25-feature-2](https://github.com/PingDavidR/go-release-test/pull/pr-25-feature-2) 
+[`9d8e74bc`](https://github.com/PingDavidR/go-release-test/commit/9d8e74bc) Added table-driven tests for the Sin function covering key angles [#pr-26-enhancement-1](https://github.com/PingDavidR/go-release-test/pull/pr-26-enhancement-1) 
+[`8a3e3715`](https://github.com/PingDavidR/go-release-test/commit/8a3e3715) Added Sin function to the calculator package for computing the sine of an angle in radians [#pr-26-feature-1](https://github.com/PingDavidR/go-release-test/pull/pr-26-feature-1) 

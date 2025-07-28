@@ -30,10 +30,10 @@ fi
 mkdir -p "$RELEASE_NOTES_DIR"
 
 # Get the commit hash for the version tag
-COMMIT_HASH=$(git rev-list -n 1 "$VERSION" 2>/dev/null)
+COMMIT_HASH=$(git rev-list -n 1 "$VERSION" 2>/dev/null || echo "")
 if [ -z "$COMMIT_HASH" ]; then
   echo "Warning: No git tag found for $VERSION, using placeholder hash"
-  COMMIT_HASH="PLACEHOLDER_HASH"
+  COMMIT_HASH="HEAD"
 fi
 
 # Short hash for display

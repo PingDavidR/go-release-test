@@ -51,7 +51,8 @@ Thumbs.db
 ehthumbs.db
 
 # Editor specific
-.vscode/
+.vscode/*
+!.vscode/.copilot/*
 .idea/
 *.swp
 *.swo
