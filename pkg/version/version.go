@@ -10,7 +10,7 @@ import (
 
 var (
 	// Version is the current version of the application.
-	Version = "0.6.0"
+	Version = "0.7.0"
 
 	// GitCommit is the git commit hash.
 	GitCommit = "unknown"
