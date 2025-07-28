@@ -1,0 +1,39 @@
+name: Create GitHub Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      
+      - name: Get tag name
+        id: tag
+        run: echo "tag=${GITHUB_REF#refs/tags/}" >> $GITHUB_OUTPUT
+
+      - name: Check if release notes exist
+        id: check_files
+        run: |
+          if [ -f "release-notes/${{ steps.tag.outputs.tag }}/GITHUB_RELEASE.md" ]; then
+            echo "release_notes_exist=true" >> $GITHUB_OUTPUT
+          else
+            echo "release_notes_exist=false" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v1
+        with:
+          name: "Release ${{ steps.tag.outputs.tag }}"
+          body_path: ${{ steps.check_files.outputs.release_notes_exist == 'true' && format('release-notes/{0}/GITHUB_RELEASE.md', steps.tag.outputs.tag) || '' }}
+          draft: false
+          prerelease: false
+          token: ${{ secrets.GITHUB_TOKEN }}
