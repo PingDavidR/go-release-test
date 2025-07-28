@@ -94,7 +94,7 @@ func TestEnsureDir(t *testing.T) {
 				if _, err := os.Stat(tt.path); os.IsNotExist(err) {
 					t.Errorf("EnsureDir(%v) did not create directory", tt.path)
 				}
-				
+
 				// Check that the directory has the correct permissions (0750 is the default in the function)
 				info, err := os.Stat(tt.path)
 				if err != nil {
