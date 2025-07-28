@@ -1,0 +1,3 @@
+```release-note:feature
+Added feature: Add GitHub Action workflow for automatic releases CDI-000
+```
