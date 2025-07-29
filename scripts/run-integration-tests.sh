@@ -44,7 +44,7 @@ else
 fi
 
 # Check if tests passed
-if [ $TEST_EXIT_CODE -eq 0 ]; then
+if [ "$TEST_EXIT_CODE" -eq 0 ]; then
   if [ -z "$CI" ]; then
     echo
     echo "====================================================="

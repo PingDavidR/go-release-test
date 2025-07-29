@@ -30,6 +30,20 @@ run: build
 test:
 	go test -v ./...
 
+# Run only unit tests (faster)
+.PHONY: unit-test
+unit-test:
+	go test -v -short ./...
+
+# Run integration tests
+.PHONY: integration-test
+integration-test: build
+	./scripts/run-integration-tests.sh
+
+# Run all tests including integration tests
+.PHONY: test-all
+test-all: unit-test integration-test
+
 # Clean the binary
 .PHONY: clean
 clean:
@@ -38,7 +52,7 @@ clean:
 
 # Create a new release
 .PHONY: release
-release: clean test build-all generate-release-notes
+release: clean test-all build-all generate-release-notes
 	mkdir -p dist
 	cp bin/* dist/
 	cd dist && \
