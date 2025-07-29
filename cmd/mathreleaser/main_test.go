@@ -10,6 +10,7 @@ import (
 )
 
 // Save original values to restore after tests
+// This ensures that tests are isolated and don't affect each other
 var (
 	originalArgs    []string
 	originalStdout  = os.Stdout
