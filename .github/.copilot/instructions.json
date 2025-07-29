@@ -2,11 +2,8 @@
   "schemaVersion": "1.0",
   "repository": {
     "purpose": "Go release process testing",
-    "protected_files": [
-      "scripts/*.sh",
-      ".github/copilot-instructions.md",
-      "Files with NOAGENT: header"
-    ]
+    "protected_files_source": ".noagent",
+    "protected_files_commit_message_pattern": "^NOAGENT:"
   },
   "development": {
     "workflow": "branch → PR → review → merge",
