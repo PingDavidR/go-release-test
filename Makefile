@@ -138,7 +138,9 @@ full-check: quick-check gosec govulncheck test
 
 # Developer check - run before submitting PR
 .PHONY: devcheck
-devcheck: fmt vet lint lint-all-shell
+devcheck: fmt-go vet lint-go
+	@echo "Running shell script checks once..."
+	./scripts/check-scripts.sh
 	@echo "✅ All developer checks passed! Ready to submit PR."
 
 # Check scripts with shellcheck
