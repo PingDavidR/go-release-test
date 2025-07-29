@@ -59,11 +59,11 @@ func getOutput(outBuf, errBuf *bytes.Buffer, rOut, wOut, rErr, wErr *os.File) (s
 	// Close write ends of pipes to flush all data
 	wOut.Close()
 	wErr.Close()
-	
+
 	// Read from the read ends of the pipes into the buffers
-	io.Copy(outBuf, rOut)
-	io.Copy(errBuf, rErr)
-	
+	_, _ = io.Copy(outBuf, rOut)
+	_, _ = io.Copy(errBuf, rErr)
+
 	// Return the captured output
 	return outBuf.String(), errBuf.String()
 }
@@ -71,16 +71,16 @@ func getOutput(outBuf, errBuf *bytes.Buffer, rOut, wOut, rErr, wErr *os.File) (s
 // Save original args before running tests
 func TestMain(m *testing.M) {
 	originalArgs = os.Args
-	
+
 	// Store the original exit function and replace it with our mock
 	originalOsExit := osExit
 	osExit = mockExit
-	
+
 	code := m.Run()
-	
+
 	// Restore the original exit function
 	osExit = originalOsExit
-	
+
 	os.Exit(code)
 }
 
@@ -146,9 +146,9 @@ func TestSubtractValidArgs(t *testing.T) {
 
 	os.Args = []string{"mathreleaser", "-op=subtract", "10", "4"}
 	mainInternal()
-	
+
 	stdout, stderr := getOutput(outBuf, errBuf, rOut, wOut, rErr, wErr)
-	
+
 	if !strings.Contains(stdout, "10 - 4 = 6.00") {
 		t.Errorf("Expected '10 - 4 = 6.00', got stdout: %s, stderr: %s", stdout, stderr)
 	}
@@ -166,9 +166,9 @@ func TestMultiplyValidArgs(t *testing.T) {
 
 	os.Args = []string{"mathreleaser", "-op=multiply", "6", "7"}
 	mainInternal()
-	
+
 	stdout, stderr := getOutput(outBuf, errBuf, rOut, wOut, rErr, wErr)
-	
+
 	if !strings.Contains(stdout, "6 * 7 = 42.00") {
 		t.Errorf("Expected '6 * 7 = 42.00', got stdout: %s, stderr: %s", stdout, stderr)
 	}
@@ -186,9 +186,9 @@ func TestDivideValidArgs(t *testing.T) {
 
 	os.Args = []string{"mathreleaser", "-op=divide", "20", "5"}
 	mainInternal()
-	
+
 	stdout, stderr := getOutput(outBuf, errBuf, rOut, wOut, rErr, wErr)
-	
+
 	if !strings.Contains(stdout, "20 / 5 = 4.00") {
 		t.Errorf("Expected '20 / 5 = 4.00', got stdout: %s, stderr: %s", stdout, stderr)
 	}
@@ -206,9 +206,9 @@ func TestPowerValidArgs(t *testing.T) {
 
 	os.Args = []string{"mathreleaser", "-op=power", "2", "3"}
 	mainInternal()
-	
+
 	stdout, stderr := getOutput(outBuf, errBuf, rOut, wOut, rErr, wErr)
-	
+
 	if !strings.Contains(stdout, "2 ^ 3 = 8.00") {
 		t.Errorf("Expected '2 ^ 3 = 8.00', got stdout: %s, stderr: %s", stdout, stderr)
 	}
@@ -226,9 +226,9 @@ func TestSqrtValidArgs(t *testing.T) {
 
 	os.Args = []string{"mathreleaser", "-op=sqrt", "16"}
 	mainInternal()
-	
+
 	stdout, stderr := getOutput(outBuf, errBuf, rOut, wOut, rErr, wErr)
-	
+
 	if !strings.Contains(stdout, "sqrt(16) = 4.00") {
 		t.Errorf("Expected 'sqrt(16) = 4.00', got stdout: %s, stderr: %s", stdout, stderr)
 	}
@@ -246,9 +246,9 @@ func TestSinValidArgs(t *testing.T) {
 
 	os.Args = []string{"mathreleaser", "-op=sin", "0"}
 	mainInternal()
-	
+
 	stdout, stderr := getOutput(outBuf, errBuf, rOut, wOut, rErr, wErr)
-	
+
 	if !strings.Contains(stdout, "sin(0) = 0.00") {
 		t.Errorf("Expected 'sin(0) = 0.00', got stdout: %s, stderr: %s", stdout, stderr)
 	}
@@ -266,9 +266,9 @@ func TestCosValidArgs(t *testing.T) {
 
 	os.Args = []string{"mathreleaser", "-op=cos", "0"}
 	mainInternal()
-	
+
 	stdout, stderr := getOutput(outBuf, errBuf, rOut, wOut, rErr, wErr)
-	
+
 	if !strings.Contains(stdout, "cos(0) = 1.00") {
 		t.Errorf("Expected 'cos(0) = 1.00', got stdout: %s, stderr: %s", stdout, stderr)
 	}
@@ -286,9 +286,9 @@ func TestInvalidOperation(t *testing.T) {
 
 	os.Args = []string{"mathreleaser", "-op=invalid", "5", "3"}
 	mainInternal()
-	
+
 	stdout, stderr := getOutput(outBuf, errBuf, rOut, wOut, rErr, wErr)
-	
+
 	if !strings.Contains(stderr, "Unknown operation") {
 		t.Errorf("Expected error about unknown operation, got stdout: %s, stderr: %s", stdout, stderr)
 	}
@@ -320,9 +320,9 @@ func TestBinaryOpMissingArgs(t *testing.T) {
 			args = append(args, tt.args...)
 			os.Args = args
 			mainInternal()
-			
+
 			stdout, stderr := getOutput(outBuf, errBuf, rOut, wOut, rErr, wErr)
-			
+
 			if !strings.Contains(stdout, "Usage:") {
 				t.Errorf("Expected usage information for missing arguments, got stdout: %s, stderr: %s", stdout, stderr)
 			}
@@ -357,9 +357,9 @@ func TestUnaryOpMissingArgs(t *testing.T) {
 			args = append(args, tt.args...)
 			os.Args = args
 			mainInternal()
-			
+
 			stdout, stderr := getOutput(outBuf, errBuf, rOut, wOut, rErr, wErr)
-			
+
 			if !strings.Contains(stdout, "Usage:") {
 				t.Errorf("Expected usage information for missing arguments, got stdout: %s, stderr: %s", stdout, stderr)
 			}
@@ -394,13 +394,13 @@ func TestInvalidNumberArgs(t *testing.T) {
 			args = append(args, tt.args...)
 			os.Args = args
 			mainInternal()
-			
+
 			stdout, stderr := getOutput(outBuf, errBuf, rOut, wOut, rErr, wErr)
-			
+
 			if !strings.Contains(stderr, tt.errorMsg) {
 				t.Errorf("Expected error message '%s', got stdout: %s, stderr: %s", tt.errorMsg, stdout, stderr)
 			}
-			
+
 			if exitCode != 1 {
 				t.Errorf("Expected exit code 1 for invalid number argument, got %d", exitCode)
 			}
@@ -416,13 +416,13 @@ func TestDivideByZero(t *testing.T) {
 
 	os.Args = []string{"mathreleaser", "-op=divide", "10", "0"}
 	mainInternal()
-	
+
 	stdout, stderr := getOutput(outBuf, errBuf, rOut, wOut, rErr, wErr)
-	
+
 	if !strings.Contains(stderr, "Error performing division") {
 		t.Errorf("Expected division by zero error, got stdout: %s, stderr: %s", stdout, stderr)
 	}
-	
+
 	if exitCode != 1 {
 		t.Errorf("Expected exit code 1 for division by zero, got %d", exitCode)
 	}
@@ -436,13 +436,13 @@ func TestNegativeSqrt(t *testing.T) {
 
 	os.Args = []string{"mathreleaser", "-op=sqrt", "--", "-16"}
 	mainInternal()
-	
+
 	stdout, stderr := getOutput(outBuf, errBuf, rOut, wOut, rErr, wErr)
-	
+
 	if !strings.Contains(stderr, "Error performing square root") {
 		t.Errorf("Expected negative square root error, got stdout: %s, stderr: %s", stdout, stderr)
 	}
-	
+
 	if exitCode != 1 {
 		t.Errorf("Expected exit code 1 for negative square root, got %d", exitCode)
 	}
@@ -456,9 +456,9 @@ func TestNoOpNoArgs(t *testing.T) {
 
 	os.Args = []string{"mathreleaser"}
 	mainInternal()
-	
+
 	stdout, stderr := getOutput(outBuf, errBuf, rOut, wOut, rErr, wErr)
-	
+
 	if !strings.Contains(stdout, "Usage:") {
 		t.Errorf("Expected usage information for no operation and no arguments, got stdout: %s, stderr: %s", stdout, stderr)
 	}
