@@ -15,6 +15,9 @@ import (
 // Variable to hold the exit function, allowing it to be mocked in tests
 var osExit = os.Exit
 
+// Variable to hold the mainInternal function, allowing it to be mocked in tests
+var mainInternalFunc = mainInternal
+
 // mainInternal is a version of main that allows for exit code testing
 func mainInternal() {
 	// Define command-line flags
@@ -125,5 +128,5 @@ func mainInternal() {
 }
 
 func main() {
-	mainInternal()
+	mainInternalFunc()
 }
