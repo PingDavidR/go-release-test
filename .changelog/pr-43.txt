@@ -1,0 +1,3 @@
+```release-note:enhancement
+Enhancement: Revert direct pushes to main that violated branch workflow policy CDI-000
+```
