@@ -39,7 +39,12 @@
     "packaging": "goreleaser",
     "ci_tools": "GitHub Actions",
     "artifacts": {
-      "platforms": ["linux", "macos", "windows", "docker"],
+      "platforms": [
+        "linux",
+        "macos",
+        "windows",
+        "docker"
+      ],
       "signed": true,
       "checksums": true
     },
@@ -62,7 +67,10 @@
     "mcp_server_usage": {
       "prefer_mcp_servers": true,
       "auto_detect_github_operations": true,
-      "preferred_tools": ["github", "firecrawl"]
+      "preferred_tools": [
+        "github",
+        "firecrawl"
+      ]
     },
     "command_execution": {
       "add_error_handling": true,
@@ -75,8 +83,14 @@
       "cleanup_after_merge": true,
       "cleanup_local_branches": true,
       "cleanup_remote_branches": true,
-      "exclude_from_cleanup": ["main"],
+      "exclude_from_cleanup": [
+        "main"
+      ],
       "cleanup_strategy": "after_successful_merge"
     }
+  },
+  "output_preferences": {
+    "concise": true,
+    "avoid_interjections": true
   }
 }
