@@ -73,6 +73,13 @@
     },
     "feedback_handling": {
       "confirm_important_actions": true
+    },
+    "branch_management": {
+      "cleanup_after_merge": true,
+      "cleanup_local_branches": true,
+      "cleanup_remote_branches": true,
+      "exclude_from_cleanup": ["main"],
+      "cleanup_strategy": "after_successful_merge"
     }
   }
 }
