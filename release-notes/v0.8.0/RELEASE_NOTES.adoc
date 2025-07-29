@@ -1,0 +1,11 @@
+= Release Notes v0.8.0
+
+== Overview
+This release is for validating the release process and CI pipeline. No code or feature changes are included.
+
+== Details
+* All tests and security checks passed
+* Artifacts will be built and signed by CI
+
+== Notes
+This is an automated release note for v0.8.0.
