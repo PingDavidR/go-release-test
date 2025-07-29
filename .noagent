@@ -1,4 +1,4 @@
-# Files listed in this configuration should not be modified by any agent actions
+# Files listed should not be modified by any agent actions
 # Each line should contain a file path or glob pattern
 # Comments begin with '#'
 
