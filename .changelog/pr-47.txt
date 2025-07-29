@@ -1,0 +1,3 @@
+```release-note:enhancement
+Enhancement: Improve test coverage to 100% CDI-000
+```
