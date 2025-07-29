@@ -12,7 +12,15 @@
     "workflow": "branch → PR → review → merge",
     "use_mcp_servers": true,
     "go_version": ">=1.22",
-    "use_gofmt": true
+    "use_gofmt": true,
+    "agent_mode_preferences": {
+      "always_use_branch": true,
+      "default_branch": "main",
+      "always_wait_for_pipelines": true,
+      "add_sleep_commands": true,
+      "sleep_duration_seconds": 5,
+      "verify_before_push": true
+    }
   },
   "code_standards": {
     "style_guide": "https://golang.org/doc/effective_go",
@@ -37,6 +45,11 @@
       "platforms": ["linux", "macos", "windows", "docker"],
       "signed": true,
       "checksums": true
+    },
+    "pipeline_monitoring": {
+      "check_status_before_merge": true,
+      "retry_failed_steps": true,
+      "status_check_interval_seconds": 30
     }
   },
   "module_management": [
@@ -47,5 +60,19 @@
   "documentation": [
     "Document all exported elements",
     "Update README.md for new features"
-  ]
+  ],
+  "agent_mode": {
+    "mcp_server_usage": {
+      "prefer_mcp_servers": true,
+      "auto_detect_github_operations": true,
+      "preferred_tools": ["github", "firecrawl"]
+    },
+    "command_execution": {
+      "add_error_handling": true,
+      "wait_between_commands": true
+    },
+    "feedback_handling": {
+      "confirm_important_actions": true
+    }
+  }
 }
