@@ -1,0 +1,3 @@
+```release-note:bug
+Fixed issue: Fix redundant shell script checks CDI-000
+```
