@@ -3,7 +3,7 @@
 # Comments begin with '#'
 
 # Protected configuration files
-.github/copilot-instructions.md
+.github/.copilot/instructions.json
 
 # Core release process files
 Makefile
