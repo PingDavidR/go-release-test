@@ -1,0 +1,3 @@
+```release-note:bug
+Fixed issue: Fix: Add changelog archiving to GitHub release workflow [HUMAN EDIT] CDI-000
+```
