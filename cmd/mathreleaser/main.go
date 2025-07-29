@@ -12,7 +12,11 @@ import (
 	"github.com/PingDavidR/go-release-test/pkg/version"
 )
 
-func main() {
+// Variable to hold the exit function, allowing it to be mocked in tests
+var osExit = os.Exit
+
+// mainInternal is a version of main that allows for exit code testing
+func mainInternal() {
 	// Define command-line flags
 	versionFlag := flag.Bool("version", false, "Print version information")
 	operation := flag.String("op", "add", "Operation to perform: add, subtract, multiply, divide, power, sqrt, sin, cos")
@@ -36,32 +40,41 @@ func main() {
 		if len(args) != 2 {
 			fmt.Println("Usage: mathreleaser -op=[add|subtract|multiply|divide|power] <number1> <number2>")
 			fmt.Println("       mathreleaser -version")
-			os.Exit(1)
+			osExit(1)
+			return
 		}
 		a, err = strconv.ParseFloat(args[0], 64)
 		if err != nil {
-			helpers.PrintError("Error parsing first number: %v", err)
+			fmt.Fprintf(os.Stderr, "Error: Error parsing first number: %v\n", err)
+			osExit(1)
+			return
 		}
 		b, err = strconv.ParseFloat(args[1], 64)
 		if err != nil {
-			helpers.PrintError("Error parsing second number: %v", err)
+			fmt.Fprintf(os.Stderr, "Error: Error parsing second number: %v\n", err)
+			osExit(1)
+			return
 		}
 	case "sqrt", "sin", "cos":
 		if len(args) != 1 {
 			fmt.Println("Usage: mathreleaser -op=[sqrt|sin|cos] <number>")
 			fmt.Println("       mathreleaser -version")
-			os.Exit(1)
+			osExit(1)
+			return
 		}
 		a, err = strconv.ParseFloat(args[0], 64)
 		if err != nil {
-			helpers.PrintError("Error parsing number: %v", err)
+			fmt.Fprintf(os.Stderr, "Error: Error parsing number: %v\n", err)
+			osExit(1)
+			return
 		}
 	default:
 		if len(args) == 0 {
 			fmt.Println("Usage: mathreleaser -op=[add|subtract|multiply|divide|power] <number1> <number2>")
 			fmt.Println("       mathreleaser -op=[sqrt|sin|cos] <number>")
 			fmt.Println("       mathreleaser -version")
-			os.Exit(1)
+			osExit(1)
+			return
 		}
 	}
 
@@ -82,7 +95,9 @@ func main() {
 	case "divide":
 		result, opErr = calculator.Divide(a, b)
 		if opErr != nil {
-			helpers.PrintError("Error performing division: %v", opErr)
+			fmt.Fprintf(os.Stderr, "Error: Error performing division: %v\n", opErr)
+			osExit(1)
+			return
 		}
 		fmt.Printf("%s / %s = %s\n", args[0], args[1], helpers.FormatNumber(result))
 	case "power":
@@ -91,7 +106,9 @@ func main() {
 	case "sqrt":
 		result, opErr = calculator.SquareRoot(a)
 		if opErr != nil {
-			helpers.PrintError("Error performing square root: %v", opErr)
+			fmt.Fprintf(os.Stderr, "Error: Error performing square root: %v\n", opErr)
+			osExit(1)
+			return
 		}
 		fmt.Printf("sqrt(%s) = %s\n", args[0], helpers.FormatNumber(result))
 	case "sin":
@@ -101,6 +118,12 @@ func main() {
 		result = calculator.Cos(a)
 		fmt.Printf("cos(%s) = %s\n", args[0], helpers.FormatNumber(result))
 	default:
-		helpers.PrintError("Unknown operation: %s", *operation)
+		fmt.Fprintf(os.Stderr, "Error: Unknown operation: %s\n", *operation)
+		osExit(1)
+		return
 	}
+}
+
+func main() {
+	mainInternal()
 }
