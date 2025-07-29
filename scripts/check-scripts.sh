@@ -9,11 +9,11 @@ set -eo pipefail
 
 # Find all shell scripts in the repository (files with .sh extension and files with shebang line)
 find_scripts() {
-  # Find files with .sh extension
-  find . -name "*.sh" -type f | sort
-
-  # Find files with shebang line starting with #!/bin/bash, #!/usr/bin/env bash, or #!/bin/sh
-  find . -type f ! -path "*/\.*" ! -path "*/vendor/*" ! -path "*/node_modules/*" -perm +111 -exec grep -l '^\#\!/bin/bash\|^\#\!/usr/bin/env bash\|^\#\!/bin/sh' {} \; 2>/dev/null | sort -u || true
+  # Find files with .sh extension and files with bash shebang line, and deduplicate the results
+  {
+    find . -name "*.sh" -type f
+    find . -type f ! -path "*/\.*" ! -path "*/vendor/*" ! -path "*/node_modules/*" -perm +111 -exec grep -l '^\#\!/bin/bash\|^\#\!/usr/bin/env bash\|^\#\!/bin/sh' {} \; 2>/dev/null || true
+  } | sort -u
 }
 
 # Check if shellcheck is installed
