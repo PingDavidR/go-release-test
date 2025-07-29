@@ -1,0 +1,3 @@
+```release-note:feature
+Added feature: feat: add CLI support for power, sqrt, sin, and cos operations CDI-000
+```
