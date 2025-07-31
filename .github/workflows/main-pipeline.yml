@@ -114,7 +114,6 @@ jobs:
             echo "exists=true" >> $GITHUB_OUTPUT
             
             # Check if the description exceeds 95 characters
-            # Extract the description from between the triple backticks
             DESCRIPTION=$(grep -v "^\`\`\`" "$CHANGELOG_FILE" | tr -d '\n')
             CHAR_COUNT=${#DESCRIPTION}
             
@@ -127,101 +126,11 @@ jobs:
               echo "description_too_long=false" >> $GITHUB_OUTPUT
             fi
           else
-            echo "Changelog file $CHANGELOG_FILE does not exist"
+            echo "::error::Changelog file $CHANGELOG_FILE does not exist. Please add a changelog entry for this PR."
             echo "exists=false" >> $GITHUB_OUTPUT
             echo "description_too_long=false" >> $GITHUB_OUTPUT
+            exit 1
           fi
-
-      - name: Create changelog entry if missing
-        if: steps.check_changelog.outputs.exists == 'false'
-        run: |
-          PR_NUMBER="${{ steps.pr.outputs.number }}"
-          PR_TITLE="${{ steps.pr.outputs.title }}"
-          CHANGELOG_FILE=".changelog/pr-${PR_NUMBER}.txt"
-          
-          # Create changelog directory if it doesn't exist
-          mkdir -p .changelog
-          
-          # Determine the type of change based on PR title
-          # This is a simple heuristic and can be improved
-          if [[ "$PR_TITLE" == *"fix"* || "$PR_TITLE" == *"Fix"* ]]; then
-            CHANGE_TYPE="bug"
-            MESSAGE="Fixed issue: ${PR_TITLE}"
-          elif [[ "$PR_TITLE" == *"feat"* || "$PR_TITLE" == *"Feat"* || "$PR_TITLE" == *"Add"* || "$PR_TITLE" == *"add"* ]]; then
-            CHANGE_TYPE="feature"
-            MESSAGE="Added feature: ${PR_TITLE}"
-          elif [[ "$PR_TITLE" == *"break"* || "$PR_TITLE" == *"Break"* ]]; then
-            CHANGE_TYPE="breaking-change"
-            MESSAGE="Breaking change: ${PR_TITLE}"
-          elif [[ "$PR_TITLE" == *"security"* || "$PR_TITLE" == *"Security"* ]]; then
-            CHANGE_TYPE="security"
-            MESSAGE="Security improvement: ${PR_TITLE}"
-          elif [[ "$PR_TITLE" == *"deprecat"* || "$PR_TITLE" == *"Deprecat"* ]]; then
-            CHANGE_TYPE="deprecation"
-            MESSAGE="Deprecation: ${PR_TITLE}"
-          else
-            CHANGE_TYPE="enhancement"
-            MESSAGE="Enhancement: ${PR_TITLE}"
-          fi
-          
-          # Check if the PR title contains a Jira ticket reference (CDI-## or PDI-##)
-          if [[ "$PR_TITLE" =~ (CDI-[0-9]+|PDI-[0-9]+) ]]; then
-            JIRA_TICKET="${BASH_REMATCH[0]}"
-            # Remove the Jira ticket from the message to avoid duplication
-            MESSAGE=$(echo "$MESSAGE" | sed -E "s/(CDI-[0-9]+|PDI-[0-9]+)//g" | sed -E "s/^[[:space:]]+|[[:space:]]+$//g")
-            # Add the Jira ticket at the end
-            MESSAGE="$MESSAGE $JIRA_TICKET"
-          else
-            # If no Jira ticket is found, add a placeholder ticket
-            # This is just for demonstration, in real workflow you might want to make this optional
-            JIRA_TICKET="CDI-000"
-            MESSAGE="$MESSAGE $JIRA_TICKET"
-          fi
-          
-          # Truncate message to 95 characters if longer
-          if [ ${#MESSAGE} -gt 95 ]; then
-            MESSAGE="${MESSAGE:0:92}..."
-            echo "Message truncated to 95 characters"
-          fi
-          
-          # Create the changelog file with template content
-          echo '```release-note:'"${CHANGE_TYPE}" > "$CHANGELOG_FILE"
-          echo "${MESSAGE}" >> "$CHANGELOG_FILE"
-          echo '```' >> "$CHANGELOG_FILE"
-          
-          echo "Created changelog file $CHANGELOG_FILE"
-          
-          # Commit the new changelog file
-          git config --local user.email "action@github.com"
-          git config --local user.name "GitHub Action"
-          git add "$CHANGELOG_FILE"
-          git commit -m "Add changelog entry for PR #${PR_NUMBER}"
-          git push
-
-      - name: Comment on PR if changelog was created
-        if: steps.check_changelog.outputs.exists == 'false'
-        uses: actions/github-script@v7
-        with:
-          github-token: ${{ secrets.GITHUB_TOKEN }}
-          script: |
-            const prNumber = ${{ steps.pr.outputs.number }};
-            const body = [
-              `✅ I've automatically created a changelog entry for this PR in .changelog/pr-${prNumber}.txt.`,
-              '',
-              'Please review and update the changelog entry if needed to better describe the changes in this PR. You can edit the file directly from GitHub or in your local repository.',
-              '',
-              '**Note:** The description in the changelog entry must be 95 characters or less. If your description is longer, it will be automatically truncated.',
-              '',
-              '**Important:** Make sure your changelog entry includes a valid Jira ticket (CDI-## or PDI-##) at the end of the description. This is required for the release notes format.',
-              '',
-              'The changelog entry is used to generate release notes when a new version is released.'
-            ].join('\n');
-            github.rest.issues.createComment({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              issue_number: prNumber,
-              body
-            });
   # Linting job (Go and Shell)
   lint:
     name: Lint
