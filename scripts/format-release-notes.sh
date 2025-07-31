@@ -18,7 +18,6 @@ VERSION=$1
 RELEASE_NOTES_DIR="release-notes/$VERSION"
 ASCIIDOC_INPUT_FILE="$RELEASE_NOTES_DIR/RELEASE_NOTES.adoc"
 GITHUB_OUTPUT_FILE="$RELEASE_NOTES_DIR/GITHUB_RELEASE.md"
-HUMAN_OUTPUT_FILE="$RELEASE_NOTES_DIR/HUMAN_RELEASE_NOTES.md"
 
 # Check if the AsciiDoc file exists
 if [ ! -f "$ASCIIDOC_INPUT_FILE" ]; then
@@ -116,81 +115,5 @@ fi
 # Add the commit hash link at the end
 echo "[${SHORT_HASH}](https://github.com/${REPO_OWNER}/${REPO_NAME}/commit/${COMMIT_HASH})" >>"$GITHUB_OUTPUT_FILE"
 
-# ---------------------------------------
-# Create Human-friendly release notes (with sections)
-# ---------------------------------------
-echo "Generating human-friendly release notes..."
-
-# Create header
-{
-  echo "# Release Notes for $VERSION"
-  echo ""
-  echo "Release Date: $RELEASE_DATE"
-  echo ""
-} >"$HUMAN_OUTPUT_FILE"
-
-# Process FEATURES section
-if grep -q "== FEATURES" "$ASCIIDOC_INPUT_FILE"; then
-  echo "## Features" >>"$HUMAN_OUTPUT_FILE"
-  echo "" >>"$HUMAN_OUTPUT_FILE"
-  grep -A 100 "== FEATURES" "$ASCIIDOC_INPUT_FILE" \
-    | awk '/^==/{ if (p) {exit}; p=1; next} p' \
-    | grep -v "^$" \
-    | sed 's/\* /- /' >>"$HUMAN_OUTPUT_FILE" || true
-  echo "" >>"$HUMAN_OUTPUT_FILE"
-fi
-
-# Process ENHANCEMENTS section
-if grep -q "== ENHANCEMENTS" "$ASCIIDOC_INPUT_FILE"; then
-  echo "## Enhancements" >>"$HUMAN_OUTPUT_FILE"
-  echo "" >>"$HUMAN_OUTPUT_FILE"
-  grep -A 100 "== ENHANCEMENTS" "$ASCIIDOC_INPUT_FILE" \
-    | awk '/^==/{ if (p) {exit}; p=1; next} p' \
-    | grep -v "^$" \
-    | sed 's/\* /- /' >>"$HUMAN_OUTPUT_FILE" || true
-  echo "" >>"$HUMAN_OUTPUT_FILE"
-fi
-
-# Process NOTES section
-if grep -q "== NOTES" "$ASCIIDOC_INPUT_FILE"; then
-  echo "## Notes" >>"$HUMAN_OUTPUT_FILE"
-  echo "" >>"$HUMAN_OUTPUT_FILE"
-  grep -A 100 "== NOTES" "$ASCIIDOC_INPUT_FILE" \
-    | awk '/^==/{ if (p) {exit}; p=1; next} p' \
-    | grep -v "^$" \
-    | sed 's/\* /- /' >>"$HUMAN_OUTPUT_FILE" || true
-  echo "" >>"$HUMAN_OUTPUT_FILE"
-fi
-
-# Process SECURITY section (if exists)
-if grep -q "== SECURITY" "$ASCIIDOC_INPUT_FILE"; then
-  echo "## Security" >>"$HUMAN_OUTPUT_FILE"
-  echo "" >>"$HUMAN_OUTPUT_FILE"
-  grep -A 100 "== SECURITY" "$ASCIIDOC_INPUT_FILE" \
-    | awk '/^==/{ if (p) {exit}; p=1; next} p' \
-    | grep -v "^$" \
-    | sed 's/\* /- /' >>"$HUMAN_OUTPUT_FILE" || true
-  echo "" >>"$HUMAN_OUTPUT_FILE"
-fi
-
-# Process BUG FIXES section (if exists)
-if grep -q "== BUG FIXES" "$ASCIIDOC_INPUT_FILE"; then
-  echo "## Bug Fixes" >>"$HUMAN_OUTPUT_FILE"
-  echo "" >>"$HUMAN_OUTPUT_FILE"
-  grep -A 100 "== BUG FIXES" "$ASCIIDOC_INPUT_FILE" \
-    | awk '/^==/{ if (p) {exit}; p=1; next} p' \
-    | grep -v "^$" \
-    | sed 's/\* /- /' >>"$HUMAN_OUTPUT_FILE" || true
-  echo "" >>"$HUMAN_OUTPUT_FILE"
-fi
-
-# Add commit section
-{
-  echo "## Commit"
-  echo ""
-  echo "[${SHORT_HASH}](https://github.com/${REPO_OWNER}/${REPO_NAME}/commit/${COMMIT_HASH})"
-} >>"$HUMAN_OUTPUT_FILE"
-
-echo "Release note files created successfully:"
+echo "Release note file created successfully:"
 echo "- GitHub Release: $GITHUB_OUTPUT_FILE"
-echo "- Human-Friendly: $HUMAN_OUTPUT_FILE"

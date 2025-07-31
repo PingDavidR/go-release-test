@@ -1,0 +1,3 @@
+```release-note:bug
+Demo message for bug type CDI-203
+```
