@@ -1,0 +1,52 @@
+
+name: Verify Changelog
+
+on:
+  workflow_run:
+    workflows: ["Agent Protection"]
+    types:
+      - completed
+
+jobs:
+  verify-changelog:
+    name: Verify Changelog Entry
+    runs-on: ubuntu-latest
+    # Removed invalid needs dependency
+    permissions:
+      contents: write
+      pull-requests: write
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          ref: ${{ github.head_ref }}
+          token: ${{ secrets.GITHUB_TOKEN }}
+      - name: Get PR info
+        id: pr
+        run: |
+          echo "number=${{ github.event.pull_request.number }}" >> $GITHUB_OUTPUT
+          echo "title=${{ github.event.pull_request.title }}" >> $GITHUB_OUTPUT
+      - name: Check for changelog entry
+        id: check_changelog
+        run: |
+          PR_NUMBER="${{ steps.pr.outputs.number }}"
+          CHANGELOG_FILE=".changelog/pr-${PR_NUMBER}.txt"
+          if [ -f "$CHANGELOG_FILE" ]; then
+            echo "Changelog file $CHANGELOG_FILE exists"
+            echo "exists=true" >> $GITHUB_OUTPUT
+            DESCRIPTION=$(grep -v "^\`\`\`" "$CHANGELOG_FILE" | tr -d '\n')
+            CHAR_COUNT=${#DESCRIPTION}
+            if [ $CHAR_COUNT -gt 95 ]; then
+              echo "::warning::Changelog description exceeds the 95-character limit ($CHAR_COUNT characters)."
+              echo "Please edit $CHANGELOG_FILE and shorten the description to 95 characters or less."
+              echo "description_too_long=true" >> $GITHUB_OUTPUT
+            else
+              echo "Changelog description is within the 95-character limit ($CHAR_COUNT characters)."
+              echo "description_too_long=false" >> $GITHUB_OUTPUT
+            fi
+          else
+            echo "::error::Changelog file $CHANGELOG_FILE does not exist. Please add a changelog entry for this PR."
+            echo "exists=false" >> $GITHUB_OUTPUT
+            echo "description_too_long=false" >> $GITHUB_OUTPUT
+            exit 1
