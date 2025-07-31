@@ -14,15 +14,11 @@ jobs:
     # Removed invalid needs dependency
     steps:
       - name: Check previous workflow conclusion
-        uses: actions/github-script@v7
-        with:
-          github-token: ${{ secrets.GITHUB_TOKEN }}
-          script: |
-            const run = github.context.payload.workflow_run;
-      
-            if (run.conclusion !== 'success') {
-              core.setFailed('Previous workflow did not succeed. Skipping lint.');
-            }
+        run: |
+          if [ "${{ github.event.workflow_run.conclusion }}" != "success" ]; then
+            echo "Previous workflow did not succeed. Skipping lint."
+            exit 1
+          fi
 
       - name: Check out code
         uses: actions/checkout@v4
