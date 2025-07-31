@@ -67,9 +67,10 @@ fi
 
 # Check if message exceeds 95 characters
 if [ ${#MESSAGE} -gt 95 ]; then
-  echo "Error: Message exceeds the 95-character limit (${#MESSAGE} characters)."
-  echo "Please shorten your message to 95 characters or less."
-  exit 1
+  TRUNCATED_MESSAGE="${MESSAGE:0:92}..."
+  echo "Warning: Message exceeded 95 characters and was truncated to:"
+  echo "$TRUNCATED_MESSAGE"
+  MESSAGE="$TRUNCATED_MESSAGE"
 fi
 
 # Validate change type

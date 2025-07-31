@@ -1,0 +1,3 @@
+```release-note:feature
+Demo message for feature type CDI-201
+```

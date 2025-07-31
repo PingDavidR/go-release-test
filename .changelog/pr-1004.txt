@@ -1,0 +1,3 @@
+```release-note:note
+Demo message for note type CDI-204
+```

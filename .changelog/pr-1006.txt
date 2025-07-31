@@ -1,0 +1,3 @@
+```release-note:deprecation
+Demo message for deprecation type CDI-206
+```

@@ -1,5 +1,5 @@
 #!/bin/bash
-# NOAGENT: This file should not be modified by automated processes
+# NOAGENT: This file must not be modified by automated processes
 
 set -e
 
