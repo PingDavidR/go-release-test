@@ -1,17 +1,17 @@
-
+# This file is part of the GitHub Actions workflows for the repository.
+# It defines the CodeQL analysis job that runs on a schedule or manually.
+# Sunday at midnight UTC is the current schedule.
 name: CodeQL Analysis
 
 on:
-  workflow_run:
-    workflows: ["Unit Tests", "Integration Tests"]
-    types:
-      - completed
+  workflow_dispatch:
+  schedule:
+    - cron: '0 0 * * 0'  # At 00:00 on Sunday
 
 jobs:
   codeql-analysis:
     name: CodeQL Analysis
     runs-on: ubuntu-latest
-    # Removed invalid needs dependency
     permissions:
       actions: read
       contents: read

@@ -2,10 +2,7 @@
 name: Lint
 
 on:
-  workflow_run:
-    workflows: ["Verify Changelog"]
-    types:
-      - completed
+  workflow_dispatch:
 
 jobs:
   lint:
