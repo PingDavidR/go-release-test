@@ -14,7 +14,7 @@ jobs:
     # Removed invalid needs dependency
     steps:
       - name: Check out code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
       - name: Linting instructions
         run: |
           echo "Go linting is not enforced in CI. Please run 'make devcheck' locally before pushing."
