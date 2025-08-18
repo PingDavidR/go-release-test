@@ -109,7 +109,7 @@ jobs:
     name: Verify Changelog Entry
     runs-on: ubuntu-latest
     needs: [agent-protection-check]
-    if: needs.check-commit-message.outputs.skip != 'true'
+    if: needs.check-commit-message.outputs.skip != 'true' && github.event_name == 'pull_request'
     permissions:
       contents: write
       pull-requests: write
@@ -139,10 +139,25 @@ jobs:
             exit 1
           fi
 
+  # Gates unify the dependency graph for PRs vs pushes
+  gate_pr:
+    runs-on: ubuntu-latest
+    needs: [verify-changelog]
+    if: github.event_name == 'pull_request'
+    steps:
+      - run: echo "PR gate passed."
+
+  gate_push:
+    runs-on: ubuntu-latest
+    needs: [agent-protection-check]
+    if: github.event_name == 'push'
+    steps:
+      - run: echo "Push gate passed."
+
   lint:
     name: Lint
     runs-on: ubuntu-latest
-    needs: [verify-changelog]
+    needs: [gate_pr, gate_push]
     if: needs.check-commit-message.outputs.skip != 'true'
     steps:
       - name: Check out code
@@ -192,7 +207,7 @@ jobs:
 
   integration-test:
     name: Integration Tests
-    runs-on: ubuntu-lest
+    runs-on: ubuntu-latest
     needs: [lint]
     if: needs.check-commit-message.outputs.skip != 'true'
     steps:
