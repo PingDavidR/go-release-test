@@ -144,7 +144,7 @@ jobs:
       - name: Install shellcheck
         run: |
           sudo apt-get update
-        sudo apt-get install -y shellcheck
+          sudo apt-get install -y shellcheck
       - name: Run shellcheck
         run: |
           SCRIPTS=$(find . -name "*.sh" -type f | sort)
