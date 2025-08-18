@@ -1,8 +1,7 @@
 name: Agent Protection
 
 on:
-  pull_request:
-    branches: [ main ]
+  workflow_dispatch:
 
 jobs:
   agent-protection-check:

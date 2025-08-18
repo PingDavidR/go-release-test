@@ -2,10 +2,7 @@
 name: Lint
 
 on:
-  workflow_run:
-    workflows: ["Verify Changelog"]
-    types:
-      - completed
+  workflow_dispatch:
 
 jobs:
   lint:
@@ -13,15 +10,30 @@ jobs:
     runs-on: ubuntu-latest
     # Removed invalid needs dependency
     steps:
+      - name: Check previous workflow conclusion
+        uses: actions/github-script@v7
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const run = context.payload.workflow_run;
+      
+            console.log(`Triggering workflow run conclusion: ${run.conclusion}`);
+            if (run.conclusion !== 'success') {
+              core.setFailed('Previous workflow did not succeed. Skipping lint.');
+            }
+
+
       - name: Check out code
         uses: actions/checkout@v5
       - name: Linting instructions
         run: |
           echo "Go linting is not enforced in CI. Please run 'make devcheck' locally before pushing."
+
       - name: Install shellcheck
         run: |
           sudo apt-get update
           sudo apt-get install -y shellcheck
+
       - name: Run shellcheck
         run: |
           SCRIPTS=$(find . -name "*.sh" -type f | sort)
@@ -30,10 +42,12 @@ jobs:
             echo "Checking $script"
             shellcheck -x "$script" || exit 1
           done
+
       - name: Install shfmt
         run: |
           go install mvdan.cc/sh/v3/cmd/shfmt@latest
           echo "$(go env GOPATH)/bin" >> $GITHUB_PATH
+
       - name: Run shfmt
         run: |
           SCRIPTS=$(find . -name "*.sh" -type f | sort)

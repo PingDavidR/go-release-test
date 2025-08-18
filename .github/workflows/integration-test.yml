@@ -2,10 +2,7 @@
 name: Integration Tests
 
 on:
-  workflow_run:
-    workflows: ["Lint"]
-    types:
-      - completed
+  workflow_dispatch:
 
 jobs:
   integration-test:

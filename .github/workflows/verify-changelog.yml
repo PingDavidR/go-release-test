@@ -2,10 +2,7 @@
 name: Verify Changelog
 
 on:
-  workflow_run:
-    workflows: ["Agent Protection"]
-    types:
-      - completed
+  workflow_dispatch:
 
 jobs:
   verify-changelog:
