@@ -1,14 +1,16 @@
-# Release Notes for v0.9.0
-
-[`d2d188bc`](https://github.com/PingDavidR/go-release-test/commit/d2d188bc) Demo message for breaking-change type [#pr-1000](https://github.com/PingDavidR/go-release-test/pull/pr-1000) CDI-200
 [`5ac426c6`](https://github.com/PingDavidR/go-release-test/commit/5ac426c6) Demo message for feature type [#pr-1001](https://github.com/PingDavidR/go-release-test/pull/pr-1001) CDI-201
+[`50879e57`](https://github.com/PingDavidR/go-release-test/commit/50879e57) dependabot [#pr-56](https://github.com/PingDavidR/go-release-test/pull/pr-56) CDI-000
+
 [`388a0642`](https://github.com/PingDavidR/go-release-test/commit/388a0642) Demo message for enhancement type [#pr-1002](https://github.com/PingDavidR/go-release-test/pull/pr-1002) CDI-202
-[`7691cae4`](https://github.com/PingDavidR/go-release-test/commit/7691cae4) Demo message for bug type [#pr-1003](https://github.com/PingDavidR/go-release-test/pull/pr-1003) CDI-203
-[`f5a17c1b`](https://github.com/PingDavidR/go-release-test/commit/f5a17c1b) Demo message for note type [#pr-1004](https://github.com/PingDavidR/go-release-test/pull/pr-1004) CDI-204
-[`5b801a2d`](https://github.com/PingDavidR/go-release-test/commit/5b801a2d) Demo message for security type [#pr-1005](https://github.com/PingDavidR/go-release-test/pull/pr-1005) CDI-205
-[`1f2d6431`](https://github.com/PingDavidR/go-release-test/commit/1f2d6431) Demo message for deprecation type [#pr-1006](https://github.com/PingDavidR/go-release-test/pull/pr-1006) CDI-206
 [`25a3dd31`](https://github.com/PingDavidR/go-release-test/commit/25a3dd31) Enhancement: Archive changelog entries after release [#pr-51](https://github.com/PingDavidR/go-release-test/pull/pr-51) CDI-000
 [`05f90984`](https://github.com/PingDavidR/go-release-test/commit/05f90984) Enhancement: tweaking pr changelog process [#pr-52](https://github.com/PingDavidR/go-release-test/pull/pr-52) CDI-0000
+
+[`f5a17c1b`](https://github.com/PingDavidR/go-release-test/commit/f5a17c1b) Demo message for note type [#pr-1004](https://github.com/PingDavidR/go-release-test/pull/pr-1004) CDI-204
 [`5cac4eca`](https://github.com/PingDavidR/go-release-test/commit/5cac4eca) set only main to run on PR; cleanup scripts [#pr-53](https://github.com/PingDavidR/go-release-test/pull/pr-53) PDI-123
+
+[`7691cae4`](https://github.com/PingDavidR/go-release-test/commit/7691cae4) Demo message for bug type [#pr-1003](https://github.com/PingDavidR/go-release-test/pull/pr-1003) CDI-203
 [`152fdcb8`](https://github.com/PingDavidR/go-release-test/commit/152fdcb8) fix pipeline [#pr-55](https://github.com/PingDavidR/go-release-test/pull/pr-55) CDI-999
-[`50879e57`](https://github.com/PingDavidR/go-release-test/commit/50879e57) dependabot [#pr-56](https://github.com/PingDavidR/go-release-test/pull/pr-56) CDI-000
+
+[`5b801a2d`](https://github.com/PingDavidR/go-release-test/commit/5b801a2d) Demo message for security type [#pr-1005](https://github.com/PingDavidR/go-release-test/pull/pr-1005) CDI-205
+
+[HEAD](https://github.com/PingDavidR/go-release-test/commit/HEAD)

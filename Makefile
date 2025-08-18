@@ -147,7 +147,7 @@ govulncheck:
 
 # Full check including security and tests (for manual use)
 .PHONY: full-check
-full-check: quick-check gosec govulncheck test
+full-check: devcheck shellcheck-scripts gosec govulncheck test
 	@echo "✅ Full checks passed!"
 
 # Developer check - run before submitting PR
