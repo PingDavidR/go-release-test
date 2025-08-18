@@ -1,11 +1,9 @@
-
 name: Security Scan
 
 on:
-  workflow_run:
-    workflows: ["Unit Tests", "Integration Tests"]
-    types:
-      - completed
+  workflow_dispatch:
+  schedule:
+    - cron: '0 0 * * *'  # Every day at midnight
 
 jobs:
   security-scan:
@@ -18,7 +16,7 @@ jobs:
       security-events: write
     steps:
       - name: Check out code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
       - name: Set up Go
         uses: actions/setup-go@v5
         with:

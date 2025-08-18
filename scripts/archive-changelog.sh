@@ -55,5 +55,5 @@ echo "Committing archive changes..."
 git add "$ARCHIVE_DIR"
 # Also stage deletions from .changelog directory
 git add -u "$CHANGELOG_DIR"
-git commit -m "Archive changelog entries for $VERSION" || echo "No changes to commit"
+git commit -m "archive-changelog-files: Archive changelog entries for $VERSION" || echo "No changes to commit"
 echo "Changelog entries archived and committed successfully"

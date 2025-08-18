@@ -2,10 +2,7 @@
 name: Integration Tests
 
 on:
-  workflow_run:
-    workflows: ["Lint"]
-    types:
-      - completed
+  workflow_dispatch:
 
 jobs:
   integration-test:
@@ -14,7 +11,7 @@ jobs:
     # Removed invalid needs dependency
     steps:
       - name: Check out code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
       - name: Set up Go
         uses: actions/setup-go@v5
         with:

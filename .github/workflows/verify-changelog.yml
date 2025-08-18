@@ -2,10 +2,7 @@
 name: Verify Changelog
 
 on:
-  workflow_run:
-    workflows: ["Agent Protection"]
-    types:
-      - completed
+  workflow_dispatch:
 
 jobs:
   verify-changelog:
@@ -17,7 +14,7 @@ jobs:
       pull-requests: write
     steps:
       - name: Check out code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
         with:
           fetch-depth: 0
           ref: ${{ github.head_ref }}
