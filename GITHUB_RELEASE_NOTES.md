@@ -1,3 +1,3 @@
-# Release Notes for v0.10.0
+# Release Notes for v0.11.0
 
-[`bbee5ac6`](https://github.com/PingDavidR/go-release-test/commit/bbee5ac6) Add tangent function to the calculator so it can do the complete trigonometry set [#pr-57](https://github.com/PingDavidR/go-release-test/pull/pr-57) CDI-123
+[`753e7901`](https://github.com/PingDavidR/go-release-test/commit/753e7901) Add random function to generate a random number bounded by two integers, added the tests, an... [#pr-58](https://github.com/PingDavidR/go-release-test/pull/pr-58) 
