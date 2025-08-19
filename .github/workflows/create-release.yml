@@ -65,16 +65,3 @@ jobs:
           GPG_FINGERPRINT: ${{ steps.import_gpg.outputs.fingerprint }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Archive Changelog Entries
-        run: |
-          echo "Archiving changelog entries for ${{ steps.tag.outputs.tag }}"
-          ./scripts/archive-changelog.sh "${{ steps.tag.outputs.tag }}"
-
-      - name: Commit Archive Changes
-        run: |
-          git config --local user.email "action@github.com"
-          git config --local user.name "GitHub Action"
-          git add .changelog/archive
-          git add -u .changelog
-          git commit -m "Archive changelog entries for ${{ steps.tag.outputs.tag }}" || echo "No changes to commit"
-          git push origin HEAD:main
