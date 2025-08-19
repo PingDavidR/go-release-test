@@ -22,7 +22,7 @@ var mainInternalFunc = mainInternal
 func mainInternal() {
 	// Define command-line flags
 	versionFlag := flag.Bool("version", false, "Print version information")
-	operation := flag.String("op", "add", "Operation to perform: add, subtract, multiply, divide, power, sqrt, sin, cos")
+	operation := flag.String("op", "add", "Operation to perform: add, subtract, multiply, divide, power, sqrt, sin, cos, tan")
 
 	// Parse command-line flags
 	flag.Parse()
@@ -58,9 +58,9 @@ func mainInternal() {
 			osExit(1)
 			return
 		}
-	case "sqrt", "sin", "cos":
+	case "sqrt", "sin", "cos", "tan":
 		if len(args) != 1 {
-			fmt.Println("Usage: mathreleaser -op=[sqrt|sin|cos] <number>")
+			fmt.Println("Usage: mathreleaser -op=[sqrt|sin|cos|tan] <number>")
 			fmt.Println("       mathreleaser -version")
 			osExit(1)
 			return
@@ -74,7 +74,7 @@ func mainInternal() {
 	default:
 		if len(args) == 0 {
 			fmt.Println("Usage: mathreleaser -op=[add|subtract|multiply|divide|power] <number1> <number2>")
-			fmt.Println("       mathreleaser -op=[sqrt|sin|cos] <number>")
+			fmt.Println("       mathreleaser -op=[sqrt|sin|cos|tan] <number>")
 			fmt.Println("       mathreleaser -version")
 			osExit(1)
 			return
@@ -120,6 +120,9 @@ func mainInternal() {
 	case "cos":
 		result = calculator.Cos(a)
 		fmt.Printf("cos(%s) = %s\n", args[0], helpers.FormatNumber(result))
+	case "tan":
+		result = calculator.Tan(a)
+		fmt.Printf("tan(%s) = %s\n", args[0], helpers.FormatNumber(result))
 	default:
 		fmt.Fprintf(os.Stderr, "Error: Unknown operation: %s\n", *operation)
 		osExit(1)

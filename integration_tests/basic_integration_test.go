@@ -100,6 +100,18 @@ func TestIntegration(t *testing.T) {
 			expectSuccess: true,
 		},
 		{
+			name:          "Tangent of 0",
+			args:          []string{"-op=tan", "0"},
+			expectedOut:   "tan(0) = 0.00",
+			expectSuccess: true,
+		},
+		{
+			name:          "Tangent of PI/4",
+			args:          []string{"-op=tan", "0.7853981634"},
+			expectedOut:   "tan(0.7853981634) = 1.00",
+			expectSuccess: true,
+		},
+		{
 			name:          "Invalid operation",
 			args:          []string{"-op=invalid", "5", "3"},
 			expectedErr:   "Error: Unknown operation: invalid",
@@ -120,7 +132,7 @@ func TestIntegration(t *testing.T) {
 		{
 			name:          "Missing arguments for sqrt",
 			args:          []string{"-op=sqrt"},
-			expectedOut:   "Usage: mathreleaser -op=[sqrt|sin|cos] <number>",
+			expectedOut:   "Usage: mathreleaser -op=[sqrt|sin|cos|tan] <number>",
 			expectSuccess: false,
 		},
 		{

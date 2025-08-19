@@ -1,0 +1,3 @@
+```release-note:feature
+Add tangent function to the calculator so it can do the complete trigonometry set CDI-123
+```

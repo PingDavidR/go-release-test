@@ -196,3 +196,28 @@ func TestCos(t *testing.T) {
 		})
 	}
 }
+
+func TestTan(t *testing.T) {
+	tests := []struct {
+		name     string
+		input    float64
+		expected float64
+	}{
+		{"zero", 0, 0},
+		{"pi/4", 0.7853981633974483, 1},
+		{"pi/3", 1.0471975511965976, 1.7320508075688767}, // √3
+		{"pi", 3.141592653589793, 0},
+		{"-pi/4", -0.7853981633974483, -1},
+	}
+
+	const epsilon = 1e-9
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			got := Tan(tt.input)
+			if diff := got - tt.expected; diff < -epsilon || diff > epsilon {
+				t.Errorf("Tan(%v) = %v, want %v", tt.input, got, tt.expected)
+			}
+		})
+	}
+}
