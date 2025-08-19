@@ -7,7 +7,7 @@ archives:
 builds:
   - id: "mathreleaser"
     binary: "mathreleaser"
-    main: "./cmd/mathreleaser"
+    main: ./cmd/mathreleaser
     env:
       - "CGO_ENABLED=0"
     goos:
