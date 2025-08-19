@@ -2,9 +2,16 @@
 package calculator
 
 import (
-	"errors"
-	"math"
+"errors"
+"math"
+"math/rand"
+"time"
 )
+
+func init() {
+	// Seed the random number generator to ensure randomness
+	rand.Seed(time.Now().UnixNano())
+}
 
 // Add returns the sum of two numbers.
 func Add(a, b float64) float64 {
@@ -59,4 +66,13 @@ func Cos(a float64) float64 {
 // (where the tangent is undefined).
 func Tan(a float64) float64 {
 	return math.Tan(a)
+}
+
+// Random returns a random number between min and max.
+// If min > max, the function will swap them.
+func Random(min, max float64) float64 {
+	if min > max {
+		min, max = max, min
+	}
+	return min + rand.Float64()*(max-min)
 }
