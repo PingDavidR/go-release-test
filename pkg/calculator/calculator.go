@@ -2,16 +2,13 @@
 package calculator
 
 import (
-"errors"
-"math"
-"math/rand"
-"time"
+	"errors"
+	"math"
+	"math/rand"
 )
 
-func init() {
-	// Seed the random number generator to ensure randomness
-	rand.Seed(time.Now().UnixNano())
-}
+// No need to seed random in Go 1.20+ as it's automatically seeded
+// For more info see: https://pkg.go.dev/math/rand#Seed
 
 // Add returns the sum of two numbers.
 func Add(a, b float64) float64 {
