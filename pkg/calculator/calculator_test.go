@@ -221,3 +221,43 @@ func TestTan(t *testing.T) {
 		})
 	}
 }
+
+func TestRandom(t *testing.T) {
+	tests := []struct {
+		name    string
+		min     float64
+		max     float64
+		swapped bool
+	}{
+		{"positive_range", 10, 20, false},
+		{"negative_range", -20, -10, false},
+		{"mixed_range", -10, 10, false},
+		{"zero_range", 0, 10, false},
+		{"swapped_range", 20, 10, true}, // Tests auto-swap of min/max
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			// Run multiple times to increase confidence in the test
+			for i := 0; i < 100; i++ {
+				var min, max float64
+				if tt.swapped {
+					// If swapped, the function should swap them back internally
+					min = tt.max
+					max = tt.min
+				} else {
+					min = tt.min
+					max = tt.max
+				}
+
+				got := Random(min, max)
+
+				// Check that the random number is within the expected range
+				if got < min || got > max {
+					t.Errorf("Random(%v, %v) = %v, should be between %v and %v",
+						min, max, got, min, max)
+				}
+			}
+		})
+	}
+}

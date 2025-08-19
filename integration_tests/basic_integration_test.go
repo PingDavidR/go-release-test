@@ -5,6 +5,7 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
+	"strconv"
 	"strings"
 	"testing"
 )
@@ -112,6 +113,18 @@ func TestIntegration(t *testing.T) {
 			expectSuccess: true,
 		},
 		{
+			name:          "Random between 10 and 20",
+			args:          []string{"-op=random", "10", "20"},
+			expectedOut:   "random(10, 20) = ", // Just check the prefix, we'll validate the value separately
+			expectSuccess: true,
+		},
+		{
+			name:          "Random with swapped bounds (20 and 10)",
+			args:          []string{"-op=random", "20", "10"},
+			expectedOut:   "random(20, 10) = ", // The output shows the original args
+			expectSuccess: true,
+		},
+		{
 			name:          "Invalid operation",
 			args:          []string{"-op=invalid", "5", "3"},
 			expectedErr:   "Error: Unknown operation: invalid",
@@ -120,7 +133,7 @@ func TestIntegration(t *testing.T) {
 		{
 			name:          "Missing arguments for add",
 			args:          []string{"-op=add", "5"},
-			expectedOut:   "Usage: mathreleaser -op=[add|subtract|multiply|divide|power] <number1> <number2>",
+			expectedOut:   "Usage: mathreleaser -op=[add|subtract|multiply|divide|power|random] <number1> <number2>",
 			expectSuccess: false,
 		},
 		{
@@ -173,7 +186,35 @@ func TestIntegration(t *testing.T) {
 				if exitCode != 0 {
 					t.Errorf("Expected success (exit code 0), but got %d", exitCode)
 				}
-				if !strings.Contains(stdout.String(), tc.expectedOut) {
+
+				// Special case for random operation to check bounds
+				if tc.name == "Random between 10 and 20" || tc.name == "Random with swapped bounds (20 and 10)" {
+					outStr := stdout.String()
+					if !strings.HasPrefix(outStr, tc.expectedOut) {
+						t.Errorf("Expected stdout to start with %q, got %q", tc.expectedOut, outStr)
+					} else {
+						// Extract the random value
+						parts := strings.Split(outStr, " = ")
+						if len(parts) != 2 {
+							t.Errorf("Expected output format 'random(X, Y) = Z', got %q", outStr)
+						} else {
+							// Parse the value
+							valueStr := strings.TrimSpace(parts[1])
+							value, err := strconv.ParseFloat(valueStr, 64)
+							if err != nil {
+								t.Errorf("Failed to parse random value: %v", err)
+							} else {
+								// Determine expected min/max based on test name
+								var min, max float64 = 10, 20
+
+								// Check value is within correct range regardless of how arguments were passed
+								if value < min || value > max {
+									t.Errorf("Random value %f is outside expected range [%f, %f]", value, min, max)
+								}
+							}
+						}
+					}
+				} else if !strings.Contains(stdout.String(), tc.expectedOut) {
 					t.Errorf("Expected stdout to contain %q, got %q", tc.expectedOut, stdout.String())
 				}
 			} else {

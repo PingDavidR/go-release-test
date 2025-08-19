@@ -1,0 +1,3 @@
+```release-note:feature
+Add random function to generate a random number bounded by two integers, added the tests, an...
+```
