@@ -2,13 +2,11 @@
 package calculator
 
 import (
-	"errors"
-	"math"
-	"math/rand"
+"crypto/rand"
+"errors"
+"math"
+"math/big"
 )
-
-// No need to seed random in Go 1.20+ as it's automatically seeded
-// For more info see: https://pkg.go.dev/math/rand#Seed
 
 // Add returns the sum of two numbers.
 func Add(a, b float64) float64 {
@@ -67,9 +65,26 @@ func Tan(a float64) float64 {
 
 // Random returns a random number between min and max.
 // If min > max, the function will swap them.
+// Uses crypto/rand for secure random number generation.
 func Random(min, max float64) float64 {
 	if min > max {
 		min, max = max, min
 	}
-	return min + rand.Float64()*(max-min)
+	
+	// Create a range for the random number
+	range_size := max - min
+	
+	// Generate a random number between 0 and 1 using crypto/rand
+	// Create a big.Int object with the maximum value of 2^64-1
+	n, err := rand.Int(rand.Reader, new(big.Int).SetUint64(1<<64-1))
+	if err != nil {
+		// Fallback in the unlikely case of an error
+		return min
+	}
+	
+	// Convert to a float between 0 and 1
+	f := float64(n.Uint64()) / float64(1<<64-1)
+	
+	// Scale to our desired range and shift
+	return min + f*range_size
 }
