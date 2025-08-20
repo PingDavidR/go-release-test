@@ -173,7 +173,7 @@ This repository uses a structured changelog process to track changes and generat
    ```plaintext
    <triple-backticks>release-note:type
    Description of the change CDI/PDI-###  <--- JIRA ticket
-   <triple-backticks
+   <triple-backticks>
    ```
 
    Where `type` can be one of:
@@ -220,7 +220,7 @@ The project uses GitHub Actions for continuous integration and release managemen
 5. Archive the change log files by running `./scripts/archive-changelog.sh v1.0.0`
 6. Add and commit the changes and the generated release notes with a comment "Release v1.0.0"
 6. Create a tag: `git tag -a v1.0.0 -m "Release v1.0.0"` (or use `make tag`)
-7. Push the tag: `git push origin main --tags
+7. Push the tag: `git push origin main --tags`
 8. GitHub Actions will automatically build the release and publish it
    - Use the contents of `GITHUB_RELEASE_NOTES.md` for the GitHub release description
 
