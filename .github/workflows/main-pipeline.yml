@@ -139,7 +139,7 @@ jobs:
           SCRIPTS=$(find . -name "*.sh" -type f | sort)
           for script in $SCRIPTS; do
             echo "Checking $script"
-            shfmt -i 2 -ci -bn -s -d "$script" || exit 1
+            shfmt -i 4 -sr -ci -bn -d "$script" || exit 1
           done
 
   test:

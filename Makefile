@@ -174,7 +174,7 @@ shfmt-scripts:
 	$(call ensure_tool,shfmt,go install mvdan.cc/sh/v3/cmd/shfmt@latest)
 	@for script in $$(find . -name "*.sh" -type f -o -type f ! -path "*/.*" ! -path "*/vendor/*" ! -path "*/node_modules/*" -perm +111 -exec grep -l '^\#\!/bin/bash\|^\#\!/usr/bin/env bash' {} \; 2>/dev/null | sort -u); do \
 		echo "Checking $$script"; \
-		shfmt -i 2 -ci -bn -s -d "$$script" || exit 1; \
+		shfmt -i 4 -sr -ci -bn -d "$$script" || exit 1; \
 	done
 
 # Lint all shell scripts (shellcheck and shfmt)

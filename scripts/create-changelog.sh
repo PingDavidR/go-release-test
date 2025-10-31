@@ -20,20 +20,20 @@ set -euo pipefail
 
 # Check if the required arguments are provided
 if [ $# -lt 3 ]; then
-  echo "Usage: $0 <pr-number> <change-type> <message> [<jira-ticket>]"
-  echo ""
-  echo "Change types:"
-  echo "  - breaking"
-  echo "  - feature"
-  echo "  - enhancement"
-  echo "  - bugfix"
-  echo "  - note"
-  echo "  - security"
-  echo "  - deprecation"
-  echo "  - internal (tracked but not included in release notes)"
-  echo ""
-  echo "Example: $0 123 feature \"Added new feature X\" CDI-456"
-  exit 1
+    echo "Usage: $0 <pr-number> <change-type> <message> [<jira-ticket>]"
+    echo ""
+    echo "Change types:"
+    echo "  - breaking"
+    echo "  - feature"
+    echo "  - enhancement"
+    echo "  - bugfix"
+    echo "  - note"
+    echo "  - security"
+    echo "  - deprecation"
+    echo "  - internal (tracked but not included in release notes)"
+    echo ""
+    echo "Example: $0 123 feature \"Added new feature X\" CDI-456"
+    exit 1
 fi
 
 PR_NUMBER="$1"
@@ -45,42 +45,42 @@ CHANGELOG_FILE="${CHANGELOG_DIR}/pr-${PR_NUMBER}.txt"
 
 # Validate Jira ticket if provided
 if [ -n "$JIRA_TICKET" ]; then
-  if ! [[ $JIRA_TICKET =~ ^(CDI|PDI)-[0-9]+$ ]]; then
-    echo "Error: Invalid Jira ticket format. Must be CDI-## or PDI-##"
-    exit 1
-  fi
+    if ! [[ $JIRA_TICKET =~ ^(CDI|PDI)-[0-9]+$ ]]; then
+        echo "Error: Invalid Jira ticket format. Must be CDI-## or PDI-##"
+        exit 1
+    fi
 fi
 
 # If no Jira ticket was provided, prompt for one
 if [ -z "$JIRA_TICKET" ]; then
-  read -r -p "Enter Jira ticket (format CDI-## or PDI-##, leave empty if none): " JIRA_TICKET
+    read -r -p "Enter Jira ticket (format CDI-## or PDI-##, leave empty if none): " JIRA_TICKET
 
-  # Validate the Jira ticket if entered
-  if [ -n "$JIRA_TICKET" ] && ! [[ $JIRA_TICKET =~ ^(CDI|PDI)-[0-9]+$ ]]; then
-    echo "Error: Invalid Jira ticket format. Must be CDI-## or PDI-##"
-    exit 1
-  fi
+    # Validate the Jira ticket if entered
+    if [ -n "$JIRA_TICKET" ] && ! [[ $JIRA_TICKET =~ ^(CDI|PDI)-[0-9]+$ ]]; then
+        echo "Error: Invalid Jira ticket format. Must be CDI-## or PDI-##"
+        exit 1
+    fi
 fi
 
 # If no Jira ticket, use N/A
 if [ -z "$JIRA_TICKET" ]; then
-  JIRA_TICKET="N/A"
+    JIRA_TICKET="N/A"
 fi
 
 # Validate change type
 VALID_TYPES=("breaking" "feature" "enhancement" "bugfix" "note" "security" "deprecation" "internal")
 VALID=0
 for TYPE in "${VALID_TYPES[@]}"; do
-  if [ "$CHANGE_TYPE" = "$TYPE" ]; then
-    VALID=1
-    break
-  fi
+    if [ "$CHANGE_TYPE" = "$TYPE" ]; then
+        VALID=1
+        break
+    fi
 done
 
 if [ $VALID -eq 0 ]; then
-  echo "Error: Invalid change type '$CHANGE_TYPE'"
-  echo "Valid change types: ${VALID_TYPES[*]}"
-  exit 1
+    echo "Error: Invalid change type '$CHANGE_TYPE'"
+    echo "Valid change types: ${VALID_TYPES[*]}"
+    exit 1
 fi
 
 # Create changelog directory if it doesn't exist
@@ -88,16 +88,16 @@ mkdir -p "$CHANGELOG_DIR"
 
 # Check if file already exists
 if [ -f "$CHANGELOG_FILE" ]; then
-  echo "Warning: Changelog file '$CHANGELOG_FILE' already exists."
-  read -r -p "Do you want to overwrite it? (y/n): " CONFIRM
-  if [ "$CONFIRM" != "y" ]; then
-    echo "Operation cancelled."
-    exit 0
-  fi
+    echo "Warning: Changelog file '$CHANGELOG_FILE' already exists."
+    read -r -p "Do you want to overwrite it? (y/n): " CONFIRM
+    if [ "$CONFIRM" != "y" ]; then
+        echo "Operation cancelled."
+        exit 0
+    fi
 fi
 
 # Create the changelog file
-cat >"$CHANGELOG_FILE" <<EOF
+cat > "$CHANGELOG_FILE" << EOF
 type: ${CHANGE_TYPE}
 description: ${MESSAGE}
 pr: ${PR_NUMBER}
