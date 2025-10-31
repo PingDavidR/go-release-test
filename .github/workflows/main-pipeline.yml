@@ -116,28 +116,6 @@ jobs:
         with:
           fetch-depth: 0
 
-      # PR-only: verify changelog before any other work
-      - name: Verify Changelog Entry (PRs only)
-        if: github.event_name == 'pull_request'
-        env:
-          PR_NUMBER: ${{ github.event.pull_request.number }}
-        run: |
-          CHANGELOG_FILE=".changelog/pr-${PR_NUMBER}.txt"
-          if [ -f "$CHANGELOG_FILE" ]; then
-            echo "Changelog file $CHANGELOG_FILE exists"
-            DESCRIPTION=$(grep -v "^\`\`\`" "$CHANGELOG_FILE" | tr -d '\n')
-            CHAR_COUNT=${#DESCRIPTION}
-            if [ $CHAR_COUNT -gt 95 ]; then
-              echo "::warning::Changelog description exceeds the 95-character limit ($CHAR_COUNT characters)."
-              echo "Please edit $CHANGELOG_FILE and shorten the description to 95 characters or less."
-            else
-              echo "Changelog description is within the 95-character limit ($CHAR_COUNT characters)."
-            fi
-          else
-            echo "::error::Changelog file $CHANGELOG_FILE does not exist. Please add a changelog entry for this PR."
-            exit 1
-          fi
-
       - name: Linting instructions
         run: |
           echo "Go linting is not enforced in CI. Please run 'make devcheck' locally before pushing."

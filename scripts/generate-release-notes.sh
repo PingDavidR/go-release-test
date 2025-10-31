@@ -75,94 +75,130 @@ for FILE in "$CHANGELOG_DIR"/*.txt; do
     # Get the filename without extension for the PR link
     FILENAME=$(basename "$FILE" .txt)
 
-    # Extract content from the file
+    # Initialize variables for this file
+    CHANGE_TYPE=""
+    DESCRIPTION=""
+    PR_NUMBER=""
+    JIRA_TICKET=""
+
+    # Parse the new format: key-value pairs
     while IFS= read -r line || [ -n "$line" ]; do
-      if [[ $line == '```release-note:breaking-change' ]]; then
-        SECTION="BREAKING_CHANGES"
-        continue
-      elif [[ $line == '```release-note:feature' ]]; then
-        SECTION="FEATURES"
-        continue
-      elif [[ $line == '```release-note:enhancement' ]]; then
-        SECTION="ENHANCEMENTS"
-        continue
-      elif [[ $line == '```release-note:bug' ]]; then
-        SECTION="BUGS"
-        continue
-      elif [[ $line == '```release-note:note' ]]; then
-        SECTION="NOTES"
-        continue
-      elif [[ $line == '```release-note:security' ]]; then
-        SECTION="SECURITY"
-        continue
-      elif [[ $line == '```release-note:deprecation' ]]; then
-        SECTION="DEPRECATION"
-        continue
-      elif [[ $line == '```' ]]; then
-        SECTION=""
+      # Skip empty lines
+      if [ -z "$line" ]; then
         continue
       fi
 
-      if [ -n "$SECTION" ] && [ -n "$line" ]; then
-        # Generate a mock commit hash for demonstration purposes
-        # In a real implementation, you would get this from git
-        COMMIT_HASH=$(echo "$FILENAME-$SECTION-$RANDOM" | md5sum | cut -c1-8)
-
-        # Extract Jira ticket if present (CDI-## or PDI-##)
-        JIRA_TICKET=""
-        if [[ $line =~ (CDI-[0-9]+|PDI-[0-9]+) ]]; then
-          JIRA_TICKET="${BASH_REMATCH[0]}"
-        fi
-
-        # If the line doesn't contain a Jira ticket, keep the original content
-        DISPLAY_LINE="$line"
-
-        # If the line contains a Jira ticket, remove it from the display line
-        if [ -n "$JIRA_TICKET" ]; then
-          DISPLAY_LINE=$(echo "$line" | sed -E "s/(CDI-[0-9]+|PDI-[0-9]+)//g" | sed -E "s/^[[:space:]]+|[[:space:]]+$//g")
-        fi
-
-        # Format for each section: commit hash link, description, PR number link, Jira ticket
-        ENTRY_FORMAT="* [\`$COMMIT_HASH\`](https://github.com/${REPO_OWNER}/${REPO_NAME}/commit/$COMMIT_HASH) $DISPLAY_LINE [#$FILENAME](https://github.com/${REPO_OWNER}/${REPO_NAME}/pull/$FILENAME)"
-
-        # Add Jira ticket if it exists
-        if [ -n "$JIRA_TICKET" ]; then
-          ENTRY_FORMAT="$ENTRY_FORMAT $JIRA_TICKET"
-        fi
-
-        case "$SECTION" in
-          BREAKING_CHANGES)
-            BREAKING_CHANGES+="$ENTRY_FORMAT\n"
-            # GitHub format: commit hash link, description, PR link, Jira ticket
-            echo "[\`$COMMIT_HASH\`](https://github.com/${REPO_OWNER}/${REPO_NAME}/commit/$COMMIT_HASH) $DISPLAY_LINE [#$FILENAME](https://github.com/${REPO_OWNER}/${REPO_NAME}/pull/$FILENAME) $JIRA_TICKET" >>"$TEMP_GITHUB_FILE"
-            ;;
-          FEATURES)
-            FEATURES+="$ENTRY_FORMAT\n"
-            echo "[\`$COMMIT_HASH\`](https://github.com/${REPO_OWNER}/${REPO_NAME}/commit/$COMMIT_HASH) $DISPLAY_LINE [#$FILENAME](https://github.com/${REPO_OWNER}/${REPO_NAME}/pull/$FILENAME) $JIRA_TICKET" >>"$TEMP_GITHUB_FILE"
-            ;;
-          ENHANCEMENTS)
-            ENHANCEMENTS+="$ENTRY_FORMAT\n"
-            echo "[\`$COMMIT_HASH\`](https://github.com/${REPO_OWNER}/${REPO_NAME}/commit/$COMMIT_HASH) $DISPLAY_LINE [#$FILENAME](https://github.com/${REPO_OWNER}/${REPO_NAME}/pull/$FILENAME) $JIRA_TICKET" >>"$TEMP_GITHUB_FILE"
-            ;;
-          BUGS)
-            BUGS+="$ENTRY_FORMAT\n"
-            echo "[\`$COMMIT_HASH\`](https://github.com/${REPO_OWNER}/${REPO_NAME}/commit/$COMMIT_HASH) $DISPLAY_LINE [#$FILENAME](https://github.com/${REPO_OWNER}/${REPO_NAME}/pull/$FILENAME) $JIRA_TICKET" >>"$TEMP_GITHUB_FILE"
-            ;;
-          NOTES)
-            NOTES+="$ENTRY_FORMAT\n"
-            echo "[\`$COMMIT_HASH\`](https://github.com/${REPO_OWNER}/${REPO_NAME}/commit/$COMMIT_HASH) $DISPLAY_LINE [#$FILENAME](https://github.com/${REPO_OWNER}/${REPO_NAME}/pull/$FILENAME) $JIRA_TICKET" >>"$TEMP_GITHUB_FILE"
-            ;;
-          SECURITY)
-            SECURITY+="$ENTRY_FORMAT\n"
-            echo "[\`$COMMIT_HASH\`](https://github.com/${REPO_OWNER}/${REPO_NAME}/commit/$COMMIT_HASH) $DISPLAY_LINE [#$FILENAME](https://github.com/${REPO_OWNER}/${REPO_NAME}/pull/$FILENAME) $JIRA_TICKET" >>"$TEMP_GITHUB_FILE"
-            ;;
-          DEPRECATION)
-            DEPRECATION+="$ENTRY_FORMAT\n"
-            echo "[\`$COMMIT_HASH\`](https://github.com/${REPO_OWNER}/${REPO_NAME}/commit/$COMMIT_HASH) $DISPLAY_LINE [#$FILENAME](https://github.com/${REPO_OWNER}/${REPO_NAME}/pull/$FILENAME) $JIRA_TICKET" >>"$TEMP_GITHUB_FILE"
-            ;;
-        esac
+      # Parse key-value pairs
+      if [[ $line =~ ^type:[[:space:]]*(.*) ]]; then
+        CHANGE_TYPE="${BASH_REMATCH[1]}"
+      elif [[ $line =~ ^description:[[:space:]]*(.*) ]]; then
+        DESCRIPTION="${BASH_REMATCH[1]}"
+      elif [[ $line =~ ^pr:[[:space:]]*(.*) ]]; then
+        PR_NUMBER="${BASH_REMATCH[1]}"
+      elif [[ $line =~ ^ticket:[[:space:]]*(.*) ]]; then
+        JIRA_TICKET="${BASH_REMATCH[1]}"
       fi
     done <"$FILE"
+
+    # Skip if we don't have the minimum required fields
+    if [ -z "$CHANGE_TYPE" ] || [ -z "$DESCRIPTION" ]; then
+      echo "Warning: Skipping $FILE - missing type or description"
+      continue
+    fi
+
+    # Skip internal changes from release notes
+    if [ "$CHANGE_TYPE" = "internal" ]; then
+      echo "Skipping internal change from $FILE"
+      continue
+    fi
+
+    # If PR number wasn't specified in the file, try to extract from filename
+    if [ -z "$PR_NUMBER" ]; then
+      if [[ $FILENAME =~ pr-([0-9]+) ]]; then
+        PR_NUMBER="${BASH_REMATCH[1]}"
+      fi
+    fi
+
+    # Generate a mock commit hash for demonstration purposes
+    # In a real implementation, you would get this from git
+    COMMIT_HASH=$(echo "$FILENAME-$CHANGE_TYPE-$RANDOM" | md5sum | cut -c1-8)
+
+    # Build the entry format
+    ENTRY_FORMAT="* [\`$COMMIT_HASH\`](https://github.com/${REPO_OWNER}/${REPO_NAME}/commit/$COMMIT_HASH) $DESCRIPTION"
+    
+    # Add PR link if available
+    if [ -n "$PR_NUMBER" ]; then
+      ENTRY_FORMAT="$ENTRY_FORMAT [#$PR_NUMBER](https://github.com/${REPO_OWNER}/${REPO_NAME}/pull/$PR_NUMBER)"
+    fi
+    
+    # Add Jira ticket if it exists and is not N/A
+    if [ -n "$JIRA_TICKET" ] && [ "$JIRA_TICKET" != "N/A" ]; then
+      ENTRY_FORMAT="$ENTRY_FORMAT $JIRA_TICKET"
+    fi
+
+    # Add to appropriate section based on change type
+    case "$CHANGE_TYPE" in
+      breaking)
+        BREAKING_CHANGES+="$ENTRY_FORMAT\n"
+        # GitHub format
+        if [ -n "$PR_NUMBER" ]; then
+          echo "[\`$COMMIT_HASH\`](https://github.com/${REPO_OWNER}/${REPO_NAME}/commit/$COMMIT_HASH) $DESCRIPTION [#$PR_NUMBER](https://github.com/${REPO_OWNER}/${REPO_NAME}/pull/$PR_NUMBER) $JIRA_TICKET" >>"$TEMP_GITHUB_FILE"
+        else
+          echo "[\`$COMMIT_HASH\`](https://github.com/${REPO_OWNER}/${REPO_NAME}/commit/$COMMIT_HASH) $DESCRIPTION $JIRA_TICKET" >>"$TEMP_GITHUB_FILE"
+        fi
+        ;;
+      feature)
+        FEATURES+="$ENTRY_FORMAT\n"
+        if [ -n "$PR_NUMBER" ]; then
+          echo "[\`$COMMIT_HASH\`](https://github.com/${REPO_OWNER}/${REPO_NAME}/commit/$COMMIT_HASH) $DESCRIPTION [#$PR_NUMBER](https://github.com/${REPO_OWNER}/${REPO_NAME}/pull/$PR_NUMBER) $JIRA_TICKET" >>"$TEMP_GITHUB_FILE"
+        else
+          echo "[\`$COMMIT_HASH\`](https://github.com/${REPO_OWNER}/${REPO_NAME}/commit/$COMMIT_HASH) $DESCRIPTION $JIRA_TICKET" >>"$TEMP_GITHUB_FILE"
+        fi
+        ;;
+      enhancement)
+        ENHANCEMENTS+="$ENTRY_FORMAT\n"
+        if [ -n "$PR_NUMBER" ]; then
+          echo "[\`$COMMIT_HASH\`](https://github.com/${REPO_OWNER}/${REPO_NAME}/commit/$COMMIT_HASH) $DESCRIPTION [#$PR_NUMBER](https://github.com/${REPO_OWNER}/${REPO_NAME}/pull/$PR_NUMBER) $JIRA_TICKET" >>"$TEMP_GITHUB_FILE"
+        else
+          echo "[\`$COMMIT_HASH\`](https://github.com/${REPO_OWNER}/${REPO_NAME}/commit/$COMMIT_HASH) $DESCRIPTION $JIRA_TICKET" >>"$TEMP_GITHUB_FILE"
+        fi
+        ;;
+      bugfix)
+        BUGS+="$ENTRY_FORMAT\n"
+        if [ -n "$PR_NUMBER" ]; then
+          echo "[\`$COMMIT_HASH\`](https://github.com/${REPO_OWNER}/${REPO_NAME}/commit/$COMMIT_HASH) $DESCRIPTION [#$PR_NUMBER](https://github.com/${REPO_OWNER}/${REPO_NAME}/pull/$PR_NUMBER) $JIRA_TICKET" >>"$TEMP_GITHUB_FILE"
+        else
+          echo "[\`$COMMIT_HASH\`](https://github.com/${REPO_OWNER}/${REPO_NAME}/commit/$COMMIT_HASH) $DESCRIPTION $JIRA_TICKET" >>"$TEMP_GITHUB_FILE"
+        fi
+        ;;
+      note)
+        NOTES+="$ENTRY_FORMAT\n"
+        if [ -n "$PR_NUMBER" ]; then
+          echo "[\`$COMMIT_HASH\`](https://github.com/${REPO_OWNER}/${REPO_NAME}/commit/$COMMIT_HASH) $DESCRIPTION [#$PR_NUMBER](https://github.com/${REPO_OWNER}/${REPO_NAME}/pull/$PR_NUMBER) $JIRA_TICKET" >>"$TEMP_GITHUB_FILE"
+        else
+          echo "[\`$COMMIT_HASH\`](https://github.com/${REPO_OWNER}/${REPO_NAME}/commit/$COMMIT_HASH) $DESCRIPTION $JIRA_TICKET" >>"$TEMP_GITHUB_FILE"
+        fi
+        ;;
+      security)
+        SECURITY+="$ENTRY_FORMAT\n"
+        if [ -n "$PR_NUMBER" ]; then
+          echo "[\`$COMMIT_HASH\`](https://github.com/${REPO_OWNER}/${REPO_NAME}/commit/$COMMIT_HASH) $DESCRIPTION [#$PR_NUMBER](https://github.com/${REPO_OWNER}/${REPO_NAME}/pull/$PR_NUMBER) $JIRA_TICKET" >>"$TEMP_GITHUB_FILE"
+        else
+          echo "[\`$COMMIT_HASH\`](https://github.com/${REPO_OWNER}/${REPO_NAME}/commit/$COMMIT_HASH) $DESCRIPTION $JIRA_TICKET" >>"$TEMP_GITHUB_FILE"
+        fi
+        ;;
+      deprecation)
+        DEPRECATION+="$ENTRY_FORMAT\n"
+        if [ -n "$PR_NUMBER" ]; then
+          echo "[\`$COMMIT_HASH\`](https://github.com/${REPO_OWNER}/${REPO_NAME}/commit/$COMMIT_HASH) $DESCRIPTION [#$PR_NUMBER](https://github.com/${REPO_OWNER}/${REPO_NAME}/pull/$PR_NUMBER) $JIRA_TICKET" >>"$TEMP_GITHUB_FILE"
+        else
+          echo "[\`$COMMIT_HASH\`](https://github.com/${REPO_OWNER}/${REPO_NAME}/commit/$COMMIT_HASH) $DESCRIPTION $JIRA_TICKET" >>"$TEMP_GITHUB_FILE"
+        fi
+        ;;
+      *)
+        echo "Warning: Unknown change type '$CHANGE_TYPE' in $FILE"
+        ;;
+    esac
   fi
 done
 
