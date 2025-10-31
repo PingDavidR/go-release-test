@@ -9,9 +9,9 @@ set -euo pipefail
 
 # Check if a version argument is provided
 if [ -z "$1" ]; then
-  echo "Usage: $0 <version>"
-  echo "Example: $0 v1.0.0"
-  exit 1
+    echo "Usage: $0 <version>"
+    echo "Example: $0 v1.0.0"
+    exit 1
 fi
 
 VERSION=$1
@@ -21,18 +21,18 @@ GITHUB_OUTPUT_FILE="$RELEASE_NOTES_DIR/GITHUB_RELEASE.md"
 
 # Check if the AsciiDoc file exists
 if [ ! -f "$ASCIIDOC_INPUT_FILE" ]; then
-  echo "Error: AsciiDoc file '$ASCIIDOC_INPUT_FILE' not found."
-  exit 1
+    echo "Error: AsciiDoc file '$ASCIIDOC_INPUT_FILE' not found."
+    exit 1
 fi
 
 # Ensure the release notes directory exists
 mkdir -p "$RELEASE_NOTES_DIR"
 
 # Get the commit hash for the version tag
-COMMIT_HASH=$(git rev-list -n 1 "$VERSION" 2>/dev/null || echo "")
+COMMIT_HASH=$(git rev-list -n 1 "$VERSION" 2> /dev/null || echo "")
 if [ -z "$COMMIT_HASH" ]; then
-  echo "Warning: No git tag found for $VERSION, using placeholder hash"
-  COMMIT_HASH="HEAD"
+    echo "Warning: No git tag found for $VERSION, using placeholder hash"
+    COMMIT_HASH="HEAD"
 fi
 
 # Short hash for display
@@ -45,16 +45,16 @@ REPO_NAME=$(echo "$REPO_URL" | sed -n 's/.*[:/][^/]*\/\([^/]*\)\.git/\1/p')
 
 # If we couldn't extract from URL, use default values
 if [ -z "$REPO_OWNER" ]; then
-  REPO_OWNER="PingDavidR"
+    REPO_OWNER="PingDavidR"
 fi
 if [ -z "$REPO_NAME" ]; then
-  REPO_NAME="go-release-test"
+    REPO_NAME="go-release-test"
 fi
 
 # Extract the release date from the AsciiDoc file
 RELEASE_DATE=$(grep -i "Release Date:" "$ASCIIDOC_INPUT_FILE" | sed -E 's/Release Date: (.*)/\1/g')
 if [ -z "$RELEASE_DATE" ]; then
-  RELEASE_DATE=$(date +"%Y-%m-%d")
+    RELEASE_DATE=$(date +"%Y-%m-%d")
 fi
 
 # ---------------------------------------
@@ -63,57 +63,57 @@ fi
 echo "Generating GitHub release notes format..."
 
 # Start with an empty file
-: >"$GITHUB_OUTPUT_FILE"
+: > "$GITHUB_OUTPUT_FILE"
 
 # Extract and format content sections
 # More robust extraction of FEATURES section
 if grep -q "== FEATURES" "$ASCIIDOC_INPUT_FILE"; then
-  # Find content between FEATURES and the next section
-  grep -A 100 "== FEATURES" "$ASCIIDOC_INPUT_FILE" \
-    | awk '/^==/{ if (p) {exit}; p=1; next} p' \
-    | grep -v "^$" \
-    | sed 's/^* //' >>"$GITHUB_OUTPUT_FILE" || true
-  echo "" >>"$GITHUB_OUTPUT_FILE"
+    # Find content between FEATURES and the next section
+    grep -A 100 "== FEATURES" "$ASCIIDOC_INPUT_FILE" \
+        | awk '/^==/{ if (p) {exit}; p=1; next} p' \
+        | grep -v "^$" \
+        | sed 's/^* //' >> "$GITHUB_OUTPUT_FILE" || true
+    echo "" >> "$GITHUB_OUTPUT_FILE"
 fi
 
 # More robust extraction of ENHANCEMENTS section
 if grep -q "== ENHANCEMENTS" "$ASCIIDOC_INPUT_FILE"; then
-  grep -A 100 "== ENHANCEMENTS" "$ASCIIDOC_INPUT_FILE" \
-    | awk '/^==/{ if (p) {exit}; p=1; next} p' \
-    | grep -v "^$" \
-    | sed 's/^* //' >>"$GITHUB_OUTPUT_FILE" || true
-  echo "" >>"$GITHUB_OUTPUT_FILE"
+    grep -A 100 "== ENHANCEMENTS" "$ASCIIDOC_INPUT_FILE" \
+        | awk '/^==/{ if (p) {exit}; p=1; next} p' \
+        | grep -v "^$" \
+        | sed 's/^* //' >> "$GITHUB_OUTPUT_FILE" || true
+    echo "" >> "$GITHUB_OUTPUT_FILE"
 fi
 
 # Add any remaining sections (NOTES, SECURITY, etc.) - customize as needed
 if grep -q "== NOTES" "$ASCIIDOC_INPUT_FILE"; then
-  grep -A 100 "== NOTES" "$ASCIIDOC_INPUT_FILE" \
-    | awk '/^==/{ if (p) {exit}; p=1; next} p' \
-    | grep -v "^$" \
-    | sed 's/^* //' >>"$GITHUB_OUTPUT_FILE" || true
-  echo "" >>"$GITHUB_OUTPUT_FILE"
+    grep -A 100 "== NOTES" "$ASCIIDOC_INPUT_FILE" \
+        | awk '/^==/{ if (p) {exit}; p=1; next} p' \
+        | grep -v "^$" \
+        | sed 's/^* //' >> "$GITHUB_OUTPUT_FILE" || true
+    echo "" >> "$GITHUB_OUTPUT_FILE"
 fi
 
 # Add bug fixes if they exist
 if grep -q "== BUG FIXES" "$ASCIIDOC_INPUT_FILE"; then
-  grep -A 100 "== BUG FIXES" "$ASCIIDOC_INPUT_FILE" \
-    | awk '/^==/{ if (p) {exit}; p=1; next} p' \
-    | grep -v "^$" \
-    | sed 's/^* //' >>"$GITHUB_OUTPUT_FILE" || true
-  echo "" >>"$GITHUB_OUTPUT_FILE"
+    grep -A 100 "== BUG FIXES" "$ASCIIDOC_INPUT_FILE" \
+        | awk '/^==/{ if (p) {exit}; p=1; next} p' \
+        | grep -v "^$" \
+        | sed 's/^* //' >> "$GITHUB_OUTPUT_FILE" || true
+    echo "" >> "$GITHUB_OUTPUT_FILE"
 fi
 
 # Add security fixes if they exist
 if grep -q "== SECURITY" "$ASCIIDOC_INPUT_FILE"; then
-  grep -A 100 "== SECURITY" "$ASCIIDOC_INPUT_FILE" \
-    | awk '/^==/{ if (p) {exit}; p=1; next} p' \
-    | grep -v "^$" \
-    | sed 's/^* //' >>"$GITHUB_OUTPUT_FILE" || true
-  echo "" >>"$GITHUB_OUTPUT_FILE"
+    grep -A 100 "== SECURITY" "$ASCIIDOC_INPUT_FILE" \
+        | awk '/^==/{ if (p) {exit}; p=1; next} p' \
+        | grep -v "^$" \
+        | sed 's/^* //' >> "$GITHUB_OUTPUT_FILE" || true
+    echo "" >> "$GITHUB_OUTPUT_FILE"
 fi
 
 # Add the commit hash link at the end
-echo "[${SHORT_HASH}](https://github.com/${REPO_OWNER}/${REPO_NAME}/commit/${COMMIT_HASH})" >>"$GITHUB_OUTPUT_FILE"
+echo "[${SHORT_HASH}](https://github.com/${REPO_OWNER}/${REPO_NAME}/commit/${COMMIT_HASH})" >> "$GITHUB_OUTPUT_FILE"
 
 echo "Release note file created successfully:"
 echo "- GitHub Release: $GITHUB_OUTPUT_FILE"

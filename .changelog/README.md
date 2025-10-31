@@ -7,9 +7,8 @@ This directory contains changelog entries for changes made to the repository. Th
 1. When you create a PR, you should create a changelog file named `pr-{PR_NUMBER}.txt` in this directory.
 2. If you don't create one, GitHub Actions will automatically create one for you.
 3. The changelog file should follow the format shown in the examples below.
-4. The description in the changelog entry must be 95 characters or less.
-5. During the release process, all changelog files are combined to generate release notes.
-6. After release, all changelog files are moved to the `archive/{version}` directory.
+4. During the release process, all changelog files are combined to generate release notes.
+5. After release, all changelog files are moved to the `archive/{version}` directory.
 
 ## Creating a Changelog Entry
 
@@ -31,43 +30,52 @@ You can create a changelog entry using one of these two methods:
    Create a file named `pr-{PR_NUMBER}.txt` in the `.changelog` directory with the following format:
 
    ```plaintext
-   <triple backticks>release-note:feature
-   Your change description [JIRA-TICKET]
-   <triple backticks>
+   type: <type>
+   description: <sufficient description for portal or other use>
+   pr: <pr #>
+   ticket: <Jira>
    ```
 
-   (Replace `<triple backticks>` with three backtick characters)
-
-   Make sure to include the Jira ticket (CDI-## or PDI-##) at the end of your description if applicable.
+   Where:
+   - `type` is one of: breaking, feature, enhancement, bugfix, note, security, deprecation, internal
+   - `description` is a clear description of the change
+   - `pr` is the pull request number
+   - `ticket` is the Jira ticket (CDI-## or PDI-##) or N/A if not applicable
 
 ## Changelog File Format
 
-Changelog files use a specific format with sections marked by triple backticks and a section type. Each file can contain multiple sections. The recognized section types are:
+Changelog files use a simple key-value format. Each file should contain the following fields:
 
-- `release-note:breaking-change` - Breaking changes that require user action
-- `release-note:feature` - New features
-- `release-note:enhancement` - Enhancements to existing functionality
-- `release-note:bug` - Bug fixes
-- `release-note:note` - General notes about the release
-- `release-note:security` - Security-related changes
-- `release-note:deprecation` - Deprecated features or functionality
+- `type:` - The type of change
+- `description:` - A description of the change
+- `pr:` - The pull request number
+- `ticket:` - The Jira ticket (or N/A if not applicable)
 
-### Character Limit
+The recognized change types are:
 
-The description text in each changelog entry must be 95 characters or less. This limit ensures that release notes are concise and readable. If your description exceeds this limit, you'll need to shorten it. The script will truncate it for you if necessary.
+- `breaking` - Breaking changes that require user action
+- `feature` - New features
+- `enhancement` - Enhancements to existing functionality
+- `bugfix` - Bug fixes
+- `note` - General notes about the release
+- `security` - Security-related changes
+- `deprecation` - Deprecated features or functionality
+- `internal` - Internal changes that are tracked but not included in release notes
 
 ## Example
 
 ```plaintext
-<triple backticks>release-note:feature
-Added new calculator function `Multiply` that allows multiplication of two numbers. CDI-123
-<triple backticks>
+type: feature
+description: Added new calculator function `Multiply` for multiplication of two numbers
+pr: 123
+ticket: CDI-456
 ```
 
 ```plaintext
-<triple backticks>release-note:bug
-Fixed issue where division by zero would cause the application to crash instead of returning an error. PDI-456
-<triple backticks>
+type: bugfix
+description: Fixed issue where division by zero would cause application crash
+pr: 124
+ticket: N/A
 ```
 
 ## Release Process

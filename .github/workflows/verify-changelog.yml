@@ -32,16 +32,20 @@ jobs:
           if [ -f "$CHANGELOG_FILE" ]; then
             echo "Changelog file $CHANGELOG_FILE exists"
             echo "exists=true" >> $GITHUB_OUTPUT
-            DESCRIPTION=$(grep -v "^\`\`\`" "$CHANGELOG_FILE" | tr -d '\n')
-            CHAR_COUNT=${#DESCRIPTION}
-            if [ $CHAR_COUNT -gt 95 ]; then
-              echo "::warning::Changelog description exceeds the 95-character limit ($CHAR_COUNT characters)."
-              echo "Please edit $CHANGELOG_FILE and shorten the description to 95 characters or less."
-              echo "description_too_long=true" >> $GITHUB_OUTPUT
-            else
-              echo "Changelog description is within the 95-character limit ($CHAR_COUNT characters)."
-              echo "description_too_long=false" >> $GITHUB_OUTPUT
+            
+            # Extract description from the new format
+            DESCRIPTION=$(grep "^description:" "$CHANGELOG_FILE" | sed 's/^description:[[:space:]]*//')
+            
+            # Validate required fields
+            TYPE=$(grep "^type:" "$CHANGELOG_FILE" | sed 's/^type:[[:space:]]*//')
+            TICKET=$(grep "^ticket:" "$CHANGELOG_FILE" | sed 's/^ticket:[[:space:]]*//')
+            
+            if [ -z "$TYPE" ] || [ -z "$DESCRIPTION" ] || [ -z "$TICKET" ]; then
+              echo "::error::Changelog file is missing required fields (type, description, or ticket)."
+              exit 1
             fi
+            
+            echo "Changelog entry is valid."
           else
             echo "::error::Changelog file $CHANGELOG_FILE does not exist. Please add a changelog entry for this PR."
             echo "exists=false" >> $GITHUB_OUTPUT

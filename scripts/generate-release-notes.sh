@@ -2,9 +2,9 @@
 
 # Check if a version argument is provided
 if [ -z "$1" ]; then
-  echo "Usage: $0 <version>"
-  echo "Example: $0 v1.0.0"
-  exit 1
+    echo "Usage: $0 <version>"
+    echo "Example: $0 v1.0.0"
+    exit 1
 fi
 
 VERSION=$1
@@ -22,10 +22,10 @@ REPO_NAME=$(echo "$REPO_URL" | sed -n 's/.*[:/][^/]*\/\([^/]*\)\.git/\1/p')
 
 # If we couldn't extract from URL, use default values
 if [ -z "$REPO_OWNER" ]; then
-  REPO_OWNER="PingDavidR"
+    REPO_OWNER="PingDavidR"
 fi
 if [ -z "$REPO_NAME" ]; then
-  REPO_NAME="go-release-test"
+    REPO_NAME="go-release-test"
 fi
 
 # Create release notes directory
@@ -33,32 +33,32 @@ mkdir -p "$RELEASE_NOTES_DIR"
 
 # Ensure the changelog directory exists
 if [ ! -d "$CHANGELOG_DIR" ]; then
-  echo "Error: Changelog directory '$CHANGELOG_DIR' not found."
-  exit 1
+    echo "Error: Changelog directory '$CHANGELOG_DIR' not found."
+    exit 1
 fi
 
 # Check if there are any changelog files
 FILE_COUNT=$(find "$CHANGELOG_DIR" -maxdepth 1 -name "*.txt" | wc -l)
 if [ "$FILE_COUNT" -eq 0 ]; then
-  echo "Error: No changelog files found in '$CHANGELOG_DIR'."
-  exit 1
+    echo "Error: No changelog files found in '$CHANGELOG_DIR'."
+    exit 1
 fi
 
 # Create release notes headers
 # GitHub release notes - simple header
-echo "# Release Notes for $VERSION" >"$TEMP_GITHUB_FILE"
-echo "" >>"$TEMP_GITHUB_FILE"
+echo "# Release Notes for $VERSION" > "$TEMP_GITHUB_FILE"
+echo "" >> "$TEMP_GITHUB_FILE"
 
 # AsciiDoc release notes - more detailed header
 {
-  echo "= Release Notes for $VERSION"
-  echo ":toc:"
-  echo ":toclevels: 3"
-  echo ":sectnums:"
-  echo ""
-  echo "Release Date: $(date +"%Y-%m-%d")"
-  echo ""
-} >"$TEMP_ADOC_FILE"
+    echo "= Release Notes for $VERSION"
+    echo ":toc:"
+    echo ":toclevels: 3"
+    echo ":sectnums:"
+    echo ""
+    echo "Release Date: $(date +"%Y-%m-%d")"
+    echo ""
+} > "$TEMP_ADOC_FILE"
 
 # Initialize sections
 BREAKING_CHANGES=""
@@ -71,156 +71,192 @@ DEPRECATION=""
 
 # Process each changelog file
 for FILE in "$CHANGELOG_DIR"/*.txt; do
-  if [ -f "$FILE" ]; then
-    # Get the filename without extension for the PR link
-    FILENAME=$(basename "$FILE" .txt)
+    if [ -f "$FILE" ]; then
+        # Get the filename without extension for the PR link
+        FILENAME=$(basename "$FILE" .txt)
 
-    # Extract content from the file
-    while IFS= read -r line || [ -n "$line" ]; do
-      if [[ $line == '```release-note:breaking-change' ]]; then
-        SECTION="BREAKING_CHANGES"
-        continue
-      elif [[ $line == '```release-note:feature' ]]; then
-        SECTION="FEATURES"
-        continue
-      elif [[ $line == '```release-note:enhancement' ]]; then
-        SECTION="ENHANCEMENTS"
-        continue
-      elif [[ $line == '```release-note:bug' ]]; then
-        SECTION="BUGS"
-        continue
-      elif [[ $line == '```release-note:note' ]]; then
-        SECTION="NOTES"
-        continue
-      elif [[ $line == '```release-note:security' ]]; then
-        SECTION="SECURITY"
-        continue
-      elif [[ $line == '```release-note:deprecation' ]]; then
-        SECTION="DEPRECATION"
-        continue
-      elif [[ $line == '```' ]]; then
-        SECTION=""
-        continue
-      fi
+        # Initialize variables for this file
+        CHANGE_TYPE=""
+        DESCRIPTION=""
+        PR_NUMBER=""
+        JIRA_TICKET=""
 
-      if [ -n "$SECTION" ] && [ -n "$line" ]; then
+        # Parse the new format: key-value pairs
+        while IFS= read -r line || [ -n "$line" ]; do
+            # Skip empty lines
+            if [ -z "$line" ]; then
+                continue
+            fi
+
+            # Parse key-value pairs
+            if [[ $line =~ ^type:[[:space:]]*(.*) ]]; then
+                CHANGE_TYPE="${BASH_REMATCH[1]}"
+            elif [[ $line =~ ^description:[[:space:]]*(.*) ]]; then
+                DESCRIPTION="${BASH_REMATCH[1]}"
+            elif [[ $line =~ ^pr:[[:space:]]*(.*) ]]; then
+                PR_NUMBER="${BASH_REMATCH[1]}"
+            elif [[ $line =~ ^ticket:[[:space:]]*(.*) ]]; then
+                JIRA_TICKET="${BASH_REMATCH[1]}"
+            fi
+        done < "$FILE"
+
+        # Skip if we don't have the minimum required fields
+        if [ -z "$CHANGE_TYPE" ] || [ -z "$DESCRIPTION" ]; then
+            echo "Warning: Skipping $FILE - missing type or description"
+            continue
+        fi
+
+        # Skip internal changes from release notes
+        if [ "$CHANGE_TYPE" = "internal" ]; then
+            echo "Skipping internal change from $FILE"
+            continue
+        fi
+
+        # If PR number wasn't specified in the file, try to extract from filename
+        if [ -z "$PR_NUMBER" ]; then
+            if [[ $FILENAME =~ pr-([0-9]+) ]]; then
+                PR_NUMBER="${BASH_REMATCH[1]}"
+            fi
+        fi
+
         # Generate a mock commit hash for demonstration purposes
         # In a real implementation, you would get this from git
-        COMMIT_HASH=$(echo "$FILENAME-$SECTION-$RANDOM" | md5sum | cut -c1-8)
+        COMMIT_HASH=$(echo "$FILENAME-$CHANGE_TYPE-$RANDOM" | md5sum | cut -c1-8)
 
-        # Extract Jira ticket if present (CDI-## or PDI-##)
-        JIRA_TICKET=""
-        if [[ $line =~ (CDI-[0-9]+|PDI-[0-9]+) ]]; then
-          JIRA_TICKET="${BASH_REMATCH[0]}"
+        # Build the entry format
+        ENTRY_FORMAT="* [\`$COMMIT_HASH\`](https://github.com/${REPO_OWNER}/${REPO_NAME}/commit/$COMMIT_HASH) $DESCRIPTION"
+
+        # Add PR link if available
+        if [ -n "$PR_NUMBER" ]; then
+            ENTRY_FORMAT="$ENTRY_FORMAT [#$PR_NUMBER](https://github.com/${REPO_OWNER}/${REPO_NAME}/pull/$PR_NUMBER)"
         fi
 
-        # If the line doesn't contain a Jira ticket, keep the original content
-        DISPLAY_LINE="$line"
-
-        # If the line contains a Jira ticket, remove it from the display line
-        if [ -n "$JIRA_TICKET" ]; then
-          DISPLAY_LINE=$(echo "$line" | sed -E "s/(CDI-[0-9]+|PDI-[0-9]+)//g" | sed -E "s/^[[:space:]]+|[[:space:]]+$//g")
+        # Add Jira ticket if it exists and is not N/A
+        if [ -n "$JIRA_TICKET" ] && [ "$JIRA_TICKET" != "N/A" ]; then
+            ENTRY_FORMAT="$ENTRY_FORMAT $JIRA_TICKET"
         fi
 
-        # Format for each section: commit hash link, description, PR number link, Jira ticket
-        ENTRY_FORMAT="* [\`$COMMIT_HASH\`](https://github.com/${REPO_OWNER}/${REPO_NAME}/commit/$COMMIT_HASH) $DISPLAY_LINE [#$FILENAME](https://github.com/${REPO_OWNER}/${REPO_NAME}/pull/$FILENAME)"
-
-        # Add Jira ticket if it exists
-        if [ -n "$JIRA_TICKET" ]; then
-          ENTRY_FORMAT="$ENTRY_FORMAT $JIRA_TICKET"
-        fi
-
-        case "$SECTION" in
-          BREAKING_CHANGES)
-            BREAKING_CHANGES+="$ENTRY_FORMAT\n"
-            # GitHub format: commit hash link, description, PR link, Jira ticket
-            echo "[\`$COMMIT_HASH\`](https://github.com/${REPO_OWNER}/${REPO_NAME}/commit/$COMMIT_HASH) $DISPLAY_LINE [#$FILENAME](https://github.com/${REPO_OWNER}/${REPO_NAME}/pull/$FILENAME) $JIRA_TICKET" >>"$TEMP_GITHUB_FILE"
-            ;;
-          FEATURES)
-            FEATURES+="$ENTRY_FORMAT\n"
-            echo "[\`$COMMIT_HASH\`](https://github.com/${REPO_OWNER}/${REPO_NAME}/commit/$COMMIT_HASH) $DISPLAY_LINE [#$FILENAME](https://github.com/${REPO_OWNER}/${REPO_NAME}/pull/$FILENAME) $JIRA_TICKET" >>"$TEMP_GITHUB_FILE"
-            ;;
-          ENHANCEMENTS)
-            ENHANCEMENTS+="$ENTRY_FORMAT\n"
-            echo "[\`$COMMIT_HASH\`](https://github.com/${REPO_OWNER}/${REPO_NAME}/commit/$COMMIT_HASH) $DISPLAY_LINE [#$FILENAME](https://github.com/${REPO_OWNER}/${REPO_NAME}/pull/$FILENAME) $JIRA_TICKET" >>"$TEMP_GITHUB_FILE"
-            ;;
-          BUGS)
-            BUGS+="$ENTRY_FORMAT\n"
-            echo "[\`$COMMIT_HASH\`](https://github.com/${REPO_OWNER}/${REPO_NAME}/commit/$COMMIT_HASH) $DISPLAY_LINE [#$FILENAME](https://github.com/${REPO_OWNER}/${REPO_NAME}/pull/$FILENAME) $JIRA_TICKET" >>"$TEMP_GITHUB_FILE"
-            ;;
-          NOTES)
-            NOTES+="$ENTRY_FORMAT\n"
-            echo "[\`$COMMIT_HASH\`](https://github.com/${REPO_OWNER}/${REPO_NAME}/commit/$COMMIT_HASH) $DISPLAY_LINE [#$FILENAME](https://github.com/${REPO_OWNER}/${REPO_NAME}/pull/$FILENAME) $JIRA_TICKET" >>"$TEMP_GITHUB_FILE"
-            ;;
-          SECURITY)
-            SECURITY+="$ENTRY_FORMAT\n"
-            echo "[\`$COMMIT_HASH\`](https://github.com/${REPO_OWNER}/${REPO_NAME}/commit/$COMMIT_HASH) $DISPLAY_LINE [#$FILENAME](https://github.com/${REPO_OWNER}/${REPO_NAME}/pull/$FILENAME) $JIRA_TICKET" >>"$TEMP_GITHUB_FILE"
-            ;;
-          DEPRECATION)
-            DEPRECATION+="$ENTRY_FORMAT\n"
-            echo "[\`$COMMIT_HASH\`](https://github.com/${REPO_OWNER}/${REPO_NAME}/commit/$COMMIT_HASH) $DISPLAY_LINE [#$FILENAME](https://github.com/${REPO_OWNER}/${REPO_NAME}/pull/$FILENAME) $JIRA_TICKET" >>"$TEMP_GITHUB_FILE"
-            ;;
+        # Add to appropriate section based on change type
+        case "$CHANGE_TYPE" in
+            breaking)
+                BREAKING_CHANGES+="$ENTRY_FORMAT\n"
+                # GitHub format
+                if [ -n "$PR_NUMBER" ]; then
+                    echo "[\`$COMMIT_HASH\`](https://github.com/${REPO_OWNER}/${REPO_NAME}/commit/$COMMIT_HASH) $DESCRIPTION [#$PR_NUMBER](https://github.com/${REPO_OWNER}/${REPO_NAME}/pull/$PR_NUMBER) $JIRA_TICKET" >> "$TEMP_GITHUB_FILE"
+                else
+                    echo "[\`$COMMIT_HASH\`](https://github.com/${REPO_OWNER}/${REPO_NAME}/commit/$COMMIT_HASH) $DESCRIPTION $JIRA_TICKET" >> "$TEMP_GITHUB_FILE"
+                fi
+                ;;
+            feature)
+                FEATURES+="$ENTRY_FORMAT\n"
+                if [ -n "$PR_NUMBER" ]; then
+                    echo "[\`$COMMIT_HASH\`](https://github.com/${REPO_OWNER}/${REPO_NAME}/commit/$COMMIT_HASH) $DESCRIPTION [#$PR_NUMBER](https://github.com/${REPO_OWNER}/${REPO_NAME}/pull/$PR_NUMBER) $JIRA_TICKET" >> "$TEMP_GITHUB_FILE"
+                else
+                    echo "[\`$COMMIT_HASH\`](https://github.com/${REPO_OWNER}/${REPO_NAME}/commit/$COMMIT_HASH) $DESCRIPTION $JIRA_TICKET" >> "$TEMP_GITHUB_FILE"
+                fi
+                ;;
+            enhancement)
+                ENHANCEMENTS+="$ENTRY_FORMAT\n"
+                if [ -n "$PR_NUMBER" ]; then
+                    echo "[\`$COMMIT_HASH\`](https://github.com/${REPO_OWNER}/${REPO_NAME}/commit/$COMMIT_HASH) $DESCRIPTION [#$PR_NUMBER](https://github.com/${REPO_OWNER}/${REPO_NAME}/pull/$PR_NUMBER) $JIRA_TICKET" >> "$TEMP_GITHUB_FILE"
+                else
+                    echo "[\`$COMMIT_HASH\`](https://github.com/${REPO_OWNER}/${REPO_NAME}/commit/$COMMIT_HASH) $DESCRIPTION $JIRA_TICKET" >> "$TEMP_GITHUB_FILE"
+                fi
+                ;;
+            bugfix)
+                BUGS+="$ENTRY_FORMAT\n"
+                if [ -n "$PR_NUMBER" ]; then
+                    echo "[\`$COMMIT_HASH\`](https://github.com/${REPO_OWNER}/${REPO_NAME}/commit/$COMMIT_HASH) $DESCRIPTION [#$PR_NUMBER](https://github.com/${REPO_OWNER}/${REPO_NAME}/pull/$PR_NUMBER) $JIRA_TICKET" >> "$TEMP_GITHUB_FILE"
+                else
+                    echo "[\`$COMMIT_HASH\`](https://github.com/${REPO_OWNER}/${REPO_NAME}/commit/$COMMIT_HASH) $DESCRIPTION $JIRA_TICKET" >> "$TEMP_GITHUB_FILE"
+                fi
+                ;;
+            note)
+                NOTES+="$ENTRY_FORMAT\n"
+                if [ -n "$PR_NUMBER" ]; then
+                    echo "[\`$COMMIT_HASH\`](https://github.com/${REPO_OWNER}/${REPO_NAME}/commit/$COMMIT_HASH) $DESCRIPTION [#$PR_NUMBER](https://github.com/${REPO_OWNER}/${REPO_NAME}/pull/$PR_NUMBER) $JIRA_TICKET" >> "$TEMP_GITHUB_FILE"
+                else
+                    echo "[\`$COMMIT_HASH\`](https://github.com/${REPO_OWNER}/${REPO_NAME}/commit/$COMMIT_HASH) $DESCRIPTION $JIRA_TICKET" >> "$TEMP_GITHUB_FILE"
+                fi
+                ;;
+            security)
+                SECURITY+="$ENTRY_FORMAT\n"
+                if [ -n "$PR_NUMBER" ]; then
+                    echo "[\`$COMMIT_HASH\`](https://github.com/${REPO_OWNER}/${REPO_NAME}/commit/$COMMIT_HASH) $DESCRIPTION [#$PR_NUMBER](https://github.com/${REPO_OWNER}/${REPO_NAME}/pull/$PR_NUMBER) $JIRA_TICKET" >> "$TEMP_GITHUB_FILE"
+                else
+                    echo "[\`$COMMIT_HASH\`](https://github.com/${REPO_OWNER}/${REPO_NAME}/commit/$COMMIT_HASH) $DESCRIPTION $JIRA_TICKET" >> "$TEMP_GITHUB_FILE"
+                fi
+                ;;
+            deprecation)
+                DEPRECATION+="$ENTRY_FORMAT\n"
+                if [ -n "$PR_NUMBER" ]; then
+                    echo "[\`$COMMIT_HASH\`](https://github.com/${REPO_OWNER}/${REPO_NAME}/commit/$COMMIT_HASH) $DESCRIPTION [#$PR_NUMBER](https://github.com/${REPO_OWNER}/${REPO_NAME}/pull/$PR_NUMBER) $JIRA_TICKET" >> "$TEMP_GITHUB_FILE"
+                else
+                    echo "[\`$COMMIT_HASH\`](https://github.com/${REPO_OWNER}/${REPO_NAME}/commit/$COMMIT_HASH) $DESCRIPTION $JIRA_TICKET" >> "$TEMP_GITHUB_FILE"
+                fi
+                ;;
+            *)
+                echo "Warning: Unknown change type '$CHANGE_TYPE' in $FILE"
+                ;;
         esac
-      fi
-    done <"$FILE"
-  fi
+    fi
 done
 
 # Add sections to the AsciiDoc release notes if they have content
 if [ -n "$BREAKING_CHANGES" ]; then
-  {
-    echo "== BREAKING CHANGES"
-    echo -e "$BREAKING_CHANGES"
-    echo ""
-  } >>"$TEMP_ADOC_FILE"
+    {
+        echo "== BREAKING CHANGES"
+        echo -e "$BREAKING_CHANGES"
+        echo ""
+    } >> "$TEMP_ADOC_FILE"
 fi
 
 if [ -n "$SECURITY" ]; then
-  {
-    echo "== SECURITY"
-    echo -e "$SECURITY"
-    echo ""
-  } >>"$TEMP_ADOC_FILE"
+    {
+        echo "== SECURITY"
+        echo -e "$SECURITY"
+        echo ""
+    } >> "$TEMP_ADOC_FILE"
 fi
 
 if [ -n "$FEATURES" ]; then
-  {
-    echo "== FEATURES"
-    echo -e "$FEATURES"
-    echo ""
-  } >>"$TEMP_ADOC_FILE"
+    {
+        echo "== FEATURES"
+        echo -e "$FEATURES"
+        echo ""
+    } >> "$TEMP_ADOC_FILE"
 fi
 
 if [ -n "$ENHANCEMENTS" ]; then
-  {
-    echo "== ENHANCEMENTS"
-    echo -e "$ENHANCEMENTS"
-    echo ""
-  } >>"$TEMP_ADOC_FILE"
+    {
+        echo "== ENHANCEMENTS"
+        echo -e "$ENHANCEMENTS"
+        echo ""
+    } >> "$TEMP_ADOC_FILE"
 fi
 
 if [ -n "$BUGS" ]; then
-  {
-    echo "== BUG FIXES"
-    echo -e "$BUGS"
-    echo ""
-  } >>"$TEMP_ADOC_FILE"
+    {
+        echo "== BUG FIXES"
+        echo -e "$BUGS"
+        echo ""
+    } >> "$TEMP_ADOC_FILE"
 fi
 
 if [ -n "$DEPRECATION" ]; then
-  {
-    echo "== DEPRECATIONS"
-    echo -e "$DEPRECATION"
-    echo ""
-  } >>"$TEMP_ADOC_FILE"
+    {
+        echo "== DEPRECATIONS"
+        echo -e "$DEPRECATION"
+        echo ""
+    } >> "$TEMP_ADOC_FILE"
 fi
 
 if [ -n "$NOTES" ]; then
-  {
-    echo "== NOTES"
-    echo -e "$NOTES"
-    echo ""
-  } >>"$TEMP_ADOC_FILE"
+    {
+        echo "== NOTES"
+        echo -e "$NOTES"
+        echo ""
+    } >> "$TEMP_ADOC_FILE"
 fi
 
 # Write the final release notes

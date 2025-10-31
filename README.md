@@ -168,22 +168,26 @@ This repository uses a structured changelog process to track changes and generat
 
 1. **Adding Changes**: When making a change, create a new file in the `.changelog` directory with a unique name matching the PR (e.g., `pr-1.txt`).
 
-2. **Changelog Format**: Each changelog file should contain one or more sections using this format:
+2. **Changelog Format**: Each changelog file should use this format:
 
    ```plaintext
-   <triple-backticks>release-note:type
-   Description of the change CDI/PDI-###  <--- JIRA ticket
-   <triple-backticks>
+   type: <type>
+   description: <sufficient description for portal or other use>
+   pr: <pr #>
+   ticket: <Jira>
    ```
 
    Where `type` can be one of:
-   - `breaking-change`
+   - `breaking`
    - `feature`
    - `enhancement`
-   - `bug`
+   - `bugfix`
    - `note`
    - `security`
    - `deprecation`
+   - `internal`
+
+   Note: If no Jira ticket is applicable, use `N/A` for the ticket field.
 
 3. **Generating Release Notes**: When creating a release, run:
 
